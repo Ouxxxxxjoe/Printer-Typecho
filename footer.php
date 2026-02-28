@@ -3,7 +3,7 @@
       <div class="site-footer-inner">
         <span class="site-footer-left">
           <?php if ($this->options->footerCopyright): ?>
-            <?php echo $this->options->footerCopyright; ?>
+            <?php echo Typecho_Common::safeHtml($this->options->footerCopyright); ?>
           <?php else: ?>
             &copy; <?php echo date('Y'); ?> <?php $this->options->title(); ?>
           <?php endif; ?>
@@ -21,7 +21,8 @@
       var syncState = function () {
         var isDark = root.classList.contains('dark');
         toggle.setAttribute('aria-pressed', isDark ? 'true' : 'false');
-        toggle.setAttribute('title', isDark ? '切换到日间模式' : '切换到夜间模式');
+        var title = isDark ? toggle.getAttribute('data-title-light') : toggle.getAttribute('data-title-dark');
+        toggle.setAttribute('title', title || (isDark ? 'Light Mode' : 'Dark Mode'));
       };
 
       syncState();

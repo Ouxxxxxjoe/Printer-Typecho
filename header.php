@@ -80,8 +80,8 @@
             <span class="brand-mark"></span>
           <?php endif; ?>
           <span class="brand-text">
-            <h1><?php echo $this->options->logoText ? $this->options->logoText : $this->options->title(); ?></h1>
-            <p><?php echo $this->options->subTitle ? $this->options->subTitle : $this->options->description(); ?></p>
+            <h1><?php echo $this->options->logoText ? htmlspecialchars($this->options->logoText) : $this->options->title(); ?></h1>
+            <p><?php echo $this->options->subTitle ? htmlspecialchars($this->options->subTitle) : $this->options->description(); ?></p>
           </span>
         </a>
         <div class="power">
@@ -93,7 +93,7 @@
 
       <div class="menu-row">
         <nav class="menu">
-          <a href="<?php $this->options->siteUrl(); ?>" class="<?php if ($this->is('index')): ?>current<?php endif; ?>">主页</a>
+          <a href="<?php $this->options->siteUrl(); ?>" class="<?php if ($this->is('index')): ?>current<?php endif; ?>"><?php _e('主页'); ?></a>
           <?php $this->widget('Widget_Contents_Page_List')->to($pages); ?>
           <?php while ($pages->next()): ?>
             <a href="<?php $pages->permalink(); ?>" class="<?php if ($this->is('page', $pages->slug)): ?>current<?php endif; ?>"><?php $pages->title(); ?></a>
@@ -116,7 +116,7 @@
             <span>EN</span>
             <span class="current">中</span>
           </div>
-          <button type="button" class="theme-toggle" id="theme-toggle" aria-label="切换日夜模式"></button>
+          <button type="button" class="theme-toggle" id="theme-toggle" aria-label="<?php _e('切换日夜模式'); ?>" data-title-light="<?php _e('切换到日间模式'); ?>" data-title-dark="<?php _e('切换到夜间模式'); ?>"></button>
         </div>
       </div>
     </header>

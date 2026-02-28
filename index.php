@@ -1,6 +1,6 @@
 <?php
 /**
- * 一款仿打印纸风格的 Typecho 主题，来源于NOOC https://nooc.me/ 博客，复刻的并不完善。
+ * 一款仿打印纸风格的 Typecho 主题，灵感来源于NOOC https://nooc.me/ 博客，复刻程度90%。
  * @package Printer
  * @author zhinan
  * @version 1.0
@@ -18,7 +18,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
     'author'    => _t('%s')
   ), '', ''); ?>
 </h2>
-<p class="paper-subtitle">共 <?php echo $this->getTotal(); ?> 篇内容</p>
+<p class="paper-subtitle"><?php _e('共 %d 篇内容', $this->getTotal()); ?></p>
 
 <section class="paper-meta">
   <div class="meta-group">
@@ -29,16 +29,16 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
           <path d="M4 5h8v2H4z"></path>
         </svg>
       </span>
-      活动
+      <?php _e('活动'); ?>
     </p>
     <div class="meta-tags">
       <?php $latestCid = 0; ?>
       <?php $this->widget('Widget_Contents_Post_Recent', 'pageSize=1')->to($latestPost); ?>
       <?php if ($latestPost->have()): $latestPost->next(); ?>
         <?php $latestCid = (int) $latestPost->cid; ?>
-        <a href="<?php $latestPost->permalink(); ?>">最新文章</a>
+        <a href="<?php $latestPost->permalink(); ?>"><?php _e('最新文章'); ?></a>
       <?php else: ?>
-        <a href="<?php $this->options->siteUrl(); ?>">最新文章</a>
+        <a href="<?php $this->options->siteUrl(); ?>"><?php _e('最新文章'); ?></a>
       <?php endif; ?>
 
       <?php $randomCids = printerPaperGetRandomCids(4, $this->options->randomReadCategories); ?>
@@ -56,12 +56,12 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
         <?php $randomCid = (int) $randomCids[0]; ?>
         <?php $this->widget('Widget_Archive@random_pick_' . $randomCid, 'pageSize=1&type=post', 'cid=' . $randomCid)->to($randomPost); ?>
         <?php if ($randomPost->have()): $randomPost->next(); ?>
-          <a href="<?php $randomPost->permalink(); ?>">随机阅读</a>
+          <a href="<?php $randomPost->permalink(); ?>"><?php _e('随机阅读'); ?></a>
         <?php else: ?>
-          <a href="<?php $this->options->siteUrl(); ?>">随机阅读</a>
+          <a href="<?php $this->options->siteUrl(); ?>"><?php _e('随机阅读'); ?></a>
         <?php endif; ?>
       <?php else: ?>
-        <a href="<?php $this->options->siteUrl(); ?>">随机阅读</a>
+        <a href="<?php $this->options->siteUrl(); ?>"><?php _e('随机阅读'); ?></a>
       <?php endif; ?>
     </div>
   </div>
@@ -73,7 +73,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
           <path d="M2 10.5A1.5 1.5 0 0 1 3.5 9h7A1.5 1.5 0 0 1 12 10.5v1A1.5 1.5 0 0 1 10.5 13h-7A1.5 1.5 0 0 1 2 11.5z"></path>
         </svg>
       </span>
-      分类
+      <?php _e('分类'); ?>
     </p>
     <div class="meta-tags">
       <?php $this->widget('Widget_Metas_Category_List')->to($categories); ?>
@@ -87,7 +87,7 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 <ul class="post-list">
   <?php while ($this->next()): ?>
     <li class="post-item">
-      <p class="post-date"><?php $this->date('Y年m月d日'); ?></p>
+      <p class="post-date"><?php $this->date(); ?></p>
       <h3 class="post-title">
         <a href="<?php $this->permalink(); ?>"><?php $this->title(); ?></a>
       </h3>

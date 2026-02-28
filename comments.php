@@ -22,28 +22,40 @@
 
     <?php if ($this->allow('comment')): ?>
       <div id="<?php $this->respondId(); ?>" class="respond-form">
-        <h4 class="respond-title"><?php _t('发表评论'); ?></h4>
+        <h4 class="respond-title"><?php _e('发表评论'); ?></h4>
         <form method="post" action="<?php $this->commentUrl() ?>" id="comment-form">
           <?php if ($this->user->hasLogin()): ?>
             <p class="respond-login">
-              <?php _t('已登录为'); ?>
+              <?php _e('已登录为'); ?>
               <a href="<?php $this->options->profileUrl(); ?>"><?php $this->user->screenName(); ?></a>
-              <a href="<?php $this->options->logoutUrl(); ?>"><?php _t('退出'); ?></a>
+              <a href="<?php $this->options->logoutUrl(); ?>"><?php _e('退出'); ?></a>
             </p>
           <?php else: ?>
             <div class="respond-grid">
-              <input type="text" name="author" id="author" placeholder="<?php _t('称呼 *'); ?>" value="<?php $this->remember('author'); ?>" required>
-              <input type="email" name="mail" id="mail" placeholder="<?php _t('邮箱 *'); ?>" value="<?php $this->remember('mail'); ?>" required>
-              <input type="url" name="url" id="url" placeholder="<?php _t('网站'); ?>" value="<?php $this->remember('url'); ?>">
+              <div class="respond-group">
+                <label for="author" class="respond-label"><?php _e('称呼'); ?> *</label>
+                <input type="text" name="author" id="author" placeholder="<?php _e('称呼 *'); ?>" value="<?php $this->remember('author'); ?>" required>
+              </div>
+              <div class="respond-group">
+                <label for="mail" class="respond-label"><?php _e('邮箱'); ?> *</label>
+                <input type="email" name="mail" id="mail" placeholder="<?php _e('邮箱 *'); ?>" value="<?php $this->remember('mail'); ?>" required>
+              </div>
+              <div class="respond-group">
+                <label for="url" class="respond-label"><?php _e('网站'); ?></label>
+                <input type="url" name="url" id="url" placeholder="<?php _e('网站'); ?>" value="<?php $this->remember('url'); ?>">
+              </div>
             </div>
           <?php endif; ?>
 
-          <textarea rows="5" cols="50" name="text" id="textarea" placeholder="<?php _t('写下你的评论...'); ?>" required></textarea>
-          <button type="submit"><?php _t('提交评论'); ?></button>
+          <div class="respond-group">
+            <label for="textarea" class="respond-label"><?php _e('评论内容'); ?> *</label>
+            <textarea rows="5" cols="50" name="text" id="textarea" placeholder="<?php _e('写下你的评论...'); ?>" required></textarea>
+          </div>
+          <button type="submit"><?php _e('提交评论'); ?></button>
         </form>
       </div>
     <?php else: ?>
-      <p class="respond-closed"><?php _t('评论已关闭'); ?></p>
+      <p class="respond-closed"><?php _e('评论已关闭'); ?></p>
     <?php endif; ?>
   </section>
 <?php endif; ?>
