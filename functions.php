@@ -1,6 +1,23 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
+// 启动 Session（用于访问统计去重）
+// 注意：必须在任何输出之前启动
+if (session_status() === PHP_SESSION_NONE) {
+  // 设置 Session 参数（可选，根据需要调整）
+  ini_set('session.cookie_httponly', 1);
+  ini_set('session.use_only_cookies', 1);
+  ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0);
+  
+  @session_start();
+}
+
+// 设置不缓存的 HTTP 头（防止 CDN 缓存包含动态数据的页面）
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: 0');
+
 // Typecho 类声明（用于 IDE 智能提示）
 if (false) {
     /** @SuppressWarnings(PHPMD) */
@@ -464,13 +481,46 @@ function printerPaperGetVisitStats() {
     );
   }
   
-  // 检查用户是否已经在今日访问过（使用 Cookie 标记）
+  // 检查用户是否已经在今日访问过
+  // 方式 1：检查 Cookie
   $hasVisitedToday = false;
+  $debugInfo = array();
+  
   if (isset($_COOKIE['printer_visited_today'])) {
     $cookieValue = $_COOKIE['printer_visited_today'];
     $cookieParts = explode(':', $cookieValue);
+    $debugInfo['cookie'] = $cookieValue;
+    
+    // 检查 Cookie 格式和日期是否都是今天
     if (count($cookieParts) === 2 && $cookieParts[0] === $today) {
       $hasVisitedToday = true;
+      $debugInfo['cookie_valid'] = true;
+      $debugInfo['cookie_date'] = $cookieParts[0];
+    } else {
+      $debugInfo['cookie_valid'] = false;
+      $debugInfo['cookie_date'] = count($cookieParts) >= 1 ? $cookieParts[0] : 'invalid';
+      $debugInfo['today'] = $today;
+    }
+  } else {
+    $debugInfo['cookie'] = 'not_set';
+  }
+  
+  // 方式 2：检查 Session（解决 Cookie 延迟生效问题）
+  if (!$hasVisitedToday) {
+    $debugInfo['session_status'] = session_status();
+    $debugInfo['session_id'] = session_id();
+    
+    if (isset($_SESSION['printer_visited_today'])) {
+      $debugInfo['session_value'] = $_SESSION['printer_visited_today'];
+      if ($_SESSION['printer_visited_today'] === $today) {
+        $hasVisitedToday = true;
+        $debugInfo['session_valid'] = true;
+      } else {
+        $debugInfo['session_valid'] = false;
+        $debugInfo['session_date_mismatch'] = true;
+      }
+    } else {
+      $debugInfo['session_value'] = 'not_set';
     }
   }
   
@@ -487,9 +537,28 @@ function printerPaperGetVisitStats() {
         ->where('stat_date = ?', $today)
     );
     
-    // 设置 cookie 标记用户今日已访问（有效期到当天结束）
+    // 设置 Cookie（有效期到当天结束，路径设为根目录确保全站可用）
     $expireTime = strtotime('tomorrow') - time();
-    setcookie('printer_visited_today', $today . ':1', time() + $expireTime, '/');
+    
+    // 使用 setcookie 的所有参数确保 Cookie 正确保存
+    setcookie(
+      'printer_visited_today',           // name
+      $today . ':1',                     // value
+      time() + $expireTime,              // expire
+      '/',                               // path (根目录，全站有效)
+      '',                                // domain (空表示当前域名)
+      isset($_SERVER['HTTPS']),          // secure (HTTPS 时启用)
+      true                               // httponly (禁止 JS 访问)
+    );
+    
+    // 同时设置 Session（立即生效，解决当前请求的问题）
+    $_SESSION['printer_visited_today'] = $today;
+    
+    // 强制刷新 $_COOKIE 超全局变量（确保当前脚本后续执行能读取到新值）
+    $_COOKIE['printer_visited_today'] = $today . ':1';
+    
+    $debugInfo['action'] = 'counted';
+    $debugInfo['new_cookie'] = $today . ':1';
     
     return array(
       'total' => (int) $row['total_visits'] + $increment,
@@ -498,6 +567,8 @@ function printerPaperGetVisitStats() {
       'increment' => $increment
     );
   }
+  
+  $debugInfo['action'] = 'skipped';
   
   return array(
     'total' => (int) $row['total_visits'],

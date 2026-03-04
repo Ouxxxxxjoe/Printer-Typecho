@@ -1,4 +1,5 @@
     </main>
+    <!-- Printer Theme Visit Stats (Dynamic Content - Do Not Cache) -->
     <footer class="site-footer">
       <div class="site-footer-inner">
         <span class="site-footer-left">
