@@ -23,7 +23,13 @@
     <link rel="icon" href="<?php $this->options->faviconUrl(); ?>">
   <?php endif; ?>
   <link rel="stylesheet" href="<?php $this->options->themeUrl('css/style.css'); ?>">
-  <?php $cnFontCssUrl = trim((string) $this->options->cnFontCssUrl); ?>
+  <?php
+    $cnFontCssUrl = trim((string) $this->options->cnFontCssUrl);
+    // 只允许 http/https 协议，防止 javascript: 等伪协议注入
+    if ($cnFontCssUrl !== '' && !preg_match('/^https?:\/\//i', $cnFontCssUrl)) {
+      $cnFontCssUrl = '';
+    }
+  ?>
   <?php if ($cnFontCssUrl !== ''): ?>
     <link rel="stylesheet" href="<?php echo htmlspecialchars($cnFontCssUrl, ENT_QUOTES, 'UTF-8'); ?>">
   <?php endif; ?>
@@ -80,8 +86,8 @@
             <span class="brand-mark"></span>
           <?php endif; ?>
           <span class="brand-text">
-            <h1><?php echo $this->options->logoText ? htmlspecialchars($this->options->logoText) : $this->options->title(); ?></h1>
-            <p><?php echo $this->options->subTitle ? htmlspecialchars($this->options->subTitle) : $this->options->description(); ?></p>
+            <h1><?php echo $this->options->logoText ? htmlspecialchars($this->options->logoText, ENT_QUOTES, 'UTF-8') : $this->options->title(); ?></h1>
+            <p><?php echo $this->options->subTitle ? htmlspecialchars($this->options->subTitle, ENT_QUOTES, 'UTF-8') : $this->options->description(); ?></p>
           </span>
         </a>
         <div class="power">

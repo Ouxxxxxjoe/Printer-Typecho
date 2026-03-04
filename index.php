@@ -1,9 +1,9 @@
 <?php
 /**
- * 一款仿打印纸风格的 Typecho 主题，灵感来源于NOOC https://nooc.me/ 博客，复刻程度90%。
+ * 一款仿打印纸风格的 Typecho 主题，复刻自NOOC https://nooc.me/ 
  * @package Printer
  * @author zhinan
- * @version 1.0
+ * @version 1.1
  * @link https://zhinan.blog/
  */
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
@@ -53,13 +53,20 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
       <?php endif; ?>
 
       <?php if (!empty($randomCids)): ?>
-        <?php $randomCid = (int) $randomCids[0]; ?>
-        <?php $this->widget('Widget_Archive@random_pick_' . $randomCid, 'pageSize=1&type=post', 'cid=' . $randomCid)->to($randomPost); ?>
-        <?php if ($randomPost->have()): $randomPost->next(); ?>
-          <a href="<?php $randomPost->permalink(); ?>"><?php _e('随机阅读'); ?></a>
-        <?php else: ?>
-          <a href="<?php $this->options->siteUrl(); ?>"><?php _e('随机阅读'); ?></a>
-        <?php endif; ?>
+        <?php
+          $randomCid = (int) $randomCids[0];
+          $_randomReadUrl = null;
+          try {
+            $this->widget('Widget_Archive@random_pick_' . $randomCid, 'pageSize=1&type=post', 'cid=' . $randomCid)->to($randomPost);
+            if ($randomPost->have()) {
+              $randomPost->next();
+              $_randomReadUrl = $randomPost->permalink;
+            }
+          } catch (Exception $e) {
+            // Widget 加载失败时降级为首页链接
+          }
+        ?>
+        <a href="<?php echo $_randomReadUrl ? htmlspecialchars($_randomReadUrl, ENT_QUOTES, 'UTF-8') : $this->options->siteUrl(); ?>"><?php _e('随机阅读'); ?></a>
       <?php else: ?>
         <a href="<?php $this->options->siteUrl(); ?>"><?php _e('随机阅读'); ?></a>
       <?php endif; ?>

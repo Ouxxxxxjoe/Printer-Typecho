@@ -1,13 +1,12 @@
 # Printer（Typecho 主题）
 
-一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复刻 Nooc 佬原创的主题 https://nooc.me 移植到 Typecho 中，支持黑暗模式、接入了中文网字计划 `result.css` 可以选择更丰富的字体。
+一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复刻 Nooc 佬原创的主题 https://nooc.me 移植到 Typecho 中，支持黑暗模式、接入了中文网字计划 ，主题只需要设置字体样式`result.css` 即可展现不一样的文字效果。
 
----
+![Printer](/screenshot.png)
 
 ## 部署 / 安装
 
 1. 将本主题目录上传到你的 Typecho 站点主题目录：
-   
    - 默认路径：`/usr/themes/`
    - 示例：把主题放为 `/usr/themes/Printer/`
 2. 登录 Typecho 后台 → **控制台** → **外观**，启用主题 **Printer**。
@@ -32,7 +31,6 @@
 
 ## 主题设置说明
 
-
 - **顶部 Logo 图片 URL**：替换左上角圆形图标（可留空）
 - **顶部 Logo 文本**：为空时显示站点标题
 - **网站描述**：为空时显示站点副标题
@@ -51,7 +49,6 @@
   - 整张纸区域（含列表页）
   - 全站（body）
   
-
 ### 颜色自定义
 
 - **外链颜色**：文章正文中外链（`http/https`）的颜色（默认 `#ff6b35`）
@@ -61,6 +58,6 @@
 
 ## 致谢
 
+[NOOC](https://nooc.me/) 主题作者，本项目复刻的起源。
 
-[NOOC](https://nooc.me/) 主题开发者，本项目复刻的起源。
 [中文网字计划](https://github.com/KonghaYao/chinese-free-web-font-storage) 一个免费的中文 web 字体库，支持在线加载及查看字体信息
