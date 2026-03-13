@@ -1,7 +1,7 @@
 <?php if (!defined('__TYPECHO_ROOT_DIR__')) exit; ?>
 <?php if ($this->allow('comment') || $this->commentsNum > 0): ?>
   <section class="comments-area">
-    <h3 class="comments-title"><?php $this->commentsNum(_t('暂无评论'), _t('1 条评论'), _t('%d 条评论')); ?></h3>
+    <h3 class="comments-title"><?php $this->commentsNum(_t('还没有评论，来抢沙发吧'), _t('1 条评论'), _t('%d 条评论')); ?></h3>
 
     <?php $this->comments()->to($comments); ?>
     <?php if ($comments->have()): ?>
@@ -26,9 +26,9 @@
         <form method="post" action="<?php $this->commentUrl() ?>" id="comment-form">
           <?php if ($this->user->hasLogin()): ?>
             <p class="respond-login">
-              <?php _e('已登录为'); ?>
+              <?php _e('当前登录：'); ?>
               <a href="<?php $this->options->profileUrl(); ?>"><?php $this->user->screenName(); ?></a>
-              <a href="<?php $this->options->logoutUrl(); ?>"><?php _e('退出'); ?></a>
+              <a href="<?php $this->options->logoutUrl(); ?>"><?php _e('退出登录'); ?></a>
             </p>
           <?php else: ?>
             <div class="respond-grid">
@@ -51,11 +51,11 @@
             <label for="textarea" class="respond-label"><?php _e('评论内容'); ?> *</label>
             <textarea rows="5" cols="50" name="text" id="textarea" placeholder="<?php _e('写下你的评论...'); ?>" required></textarea>
           </div>
-          <button type="submit"><?php _e('提交评论'); ?></button>
+          <button type="submit"><?php _e('发布评论'); ?></button>
         </form>
       </div>
     <?php else: ?>
-      <p class="respond-closed"><?php _e('评论已关闭'); ?></p>
+      <p class="respond-closed"><?php _e('本文评论已关闭'); ?></p>
     <?php endif; ?>
   </section>
 <?php endif; ?>

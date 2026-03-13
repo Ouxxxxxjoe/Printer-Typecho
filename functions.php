@@ -114,8 +114,8 @@ function themeConfig($form) {
     'logoUrl',
     NULL,
     '',
-    _t('Logo 图片 URL'),
-    _t('可选。填写后会替换左上角圆形图标，例如：https://example.com/logo.png')
+    _t('Logo 图片'),
+    _t('填写图片链接，替换左上角的圆形图标。支持 .png、.jpg、.svg 格式，建议尺寸 100x100 像素')
   );
   $form->addInput($logoUrl);
 
@@ -123,8 +123,8 @@ function themeConfig($form) {
     'logoText',
     NULL,
     'Zhinan',
-    _t('Logo 文本'),
-    _t('为空时默认显示站点标题')
+    _t('网站名称'),
+    _t('显示在 Logo 旁边的文字。留空则使用 Typecho 后台设置的站点标题')
   );
   $form->addInput($logoText);
 
@@ -132,8 +132,8 @@ function themeConfig($form) {
     'subTitle',
     NULL,
     '',
-    _t('网站描述'),
-    _t('为空时默认显示站点副标题')
+    _t('网站副标题'),
+    _t('显示在网站名称下方的小字。留空则使用 Typecho 后台设置的站点描述')
   );
   $form->addInput($subTitle);
 
@@ -141,8 +141,8 @@ function themeConfig($form) {
     'faviconUrl',
     NULL,
     '',
-    _t('网站图标（Favicon）'),
-    _t('可选。支持完整 URL 或站内路径，例如：https://example.com/favicon.ico')
+    _t('浏览器标签页图标'),
+    _t('显示在浏览器标签页和收藏夹中的图标。支持 .ico、.png 格式，建议尺寸 32x32 像素')
   );
   $form->addInput($faviconUrl);
 
@@ -150,8 +150,8 @@ function themeConfig($form) {
     'footerCopyright',
     NULL,
     '',
-    _t('底部版权信息'),
-    _t('可选。留空则显示默认版权文案')
+    _t('页脚版权文字'),
+    _t('显示在页面底部的版权信息。留空则显示 "© 年份 网站名称"')
   );
   $form->addInput($footerCopyright);
 
@@ -164,8 +164,8 @@ function themeConfig($form) {
     'randomReadCategories',
     NULL,
     '',
-    _t('随机阅读分类'),
-    _t('可选。填写分类别名（英文逗号分隔），例如：life,tech；留空表示全部分类')
+    _t('随机阅读范围'),
+    _t('限制随机阅读功能只在指定分类中选取文章。填写分类别名，多个分类用英文逗号分隔，如：life,tech。留空则不限制')
   );
   $form->addInput($randomReadCategories);
 
@@ -173,8 +173,8 @@ function themeConfig($form) {
     'showReadingTime',
     array('1' => _t('显示'), '0' => _t('隐藏')),
     '1',
-    _t('文章估读时长'),
-    _t('是否在文章详情页显示预计阅读时间（按每分钟阅读 400 字计算）')
+    _t('阅读时间估算'),
+    _t('在文章页面显示预计阅读时长，按每分钟阅读 400 字计算')
   );
   $form->addInput($showReadingTime);
 
@@ -187,8 +187,8 @@ function themeConfig($form) {
     'cnFontCssUrl',
     NULL,
     '',
-    _t('中文字体 CSS 地址'),
-    _t('可选。粘贴中文网字计划等字体平台提供的 result.css 链接，例如：https://fontsapi.zeoseven.com/309/main/result.css')
+    _t('中文字体 CSS 链接'),
+    _t('使用中文网字计划等第三方字体服务时，粘贴提供的 CSS 链接。留空则使用系统默认字体')
   );
   $form->addInput($cnFontCssUrl);
 
@@ -197,20 +197,20 @@ function themeConfig($form) {
     NULL,
     '',
     _t('中文字体名称'),
-    _t('可选。填写 CSS 中定义的字体名称。若名称包含空格请用引号，例如："LXGW WenKai"')
+    _t('填写 CSS 中定义的字体名称，必须与 CSS 链接中的定义一致。如：LXGW WenKai 或 "Source Han Serif"')
   );
   $form->addInput($cnFontFamily);
 
   $cnFontScope = new Typecho_Widget_Helper_Form_Element_Select(
     'cnFontScope',
     array(
-      'article' => _t('仅文章/页面内容（推荐）'),
-      'paper'   => _t('整张纸区域（含列表页）'),
-      'all'     => _t('全站')
+      'article' => _t('仅文章内容（推荐）'),
+      'paper'   => _t('纸张区域（含列表页）'),
+      'all'     => _t('全站所有文字')
     ),
     'article',
-    _t('中文字体应用范围'),
-    _t('可选。选择字体作用范围')
+    _t('字体应用范围'),
+    _t('选择自定义字体应用到哪些区域。仅文章内容可保持最佳阅读体验，全站应用可能影响页面加载速度')
   );
   $form->addInput($cnFontScope);
 
@@ -218,8 +218,8 @@ function themeConfig($form) {
     'externalLinkColor',
     NULL,
     '#ff6b35',
-    _t('外链颜色'),
-    _t('可选。支持十六进制颜色，如 #ff6b35 或 #f63')
+    _t('外部链接颜色'),
+    _t('文章中指向外部网站的链接显示的颜色。支持十六进制，如 #ff6b35 或简写 #f63')
   );
   $form->addInput($externalLinkColor);
 
@@ -227,8 +227,8 @@ function themeConfig($form) {
     'postCategoryColor',
     NULL,
     '#ff6b35',
-    _t('分类标签颜色'),
-    _t('可选。用于文章详情页顶部分类标签的颜色，支持十六进制颜色，如 #ff6b35 或 #f63')
+    _t('文章分类颜色'),
+    _t('文章页面顶部分类标签的背景色。支持十六进制，如 #ff6b35 或简写 #f63')
   );
   $form->addInput($postCategoryColor);
 
@@ -241,8 +241,8 @@ function themeConfig($form) {
     'analyticsCode',
     NULL,
     '',
-    _t('统计代码'),
-    _t('可选。粘贴统计脚本代码（如 Google Analytics、百度统计），将输出在页面底部')
+    _t('网站统计代码'),
+    _t('粘贴第三方统计平台的追踪代码（如 Google Analytics、百度统计），代码将插入到页面底部')
   );
   $form->addInput($analyticsCode);
 
@@ -250,8 +250,8 @@ function themeConfig($form) {
     'siteVisits',
     NULL,
     '',
-    _t('总访问量'),
-    _t('可选。设个初始值，系统会自动累加新访问。留空则从 0 开始')
+    _t('初始总访问量'),
+    _t('设置一个起始值，新访问会自动累加。适用于从其他平台迁移过来的网站，留空则从 0 开始统计')
   );
   $form->addInput($siteVisits);
 
@@ -259,8 +259,8 @@ function themeConfig($form) {
     'todayVisits',
     NULL,
     '',
-    _t('今日访问基数'),
-    _t('可选。给今日访问设个初始值，系统会自动累加新访问。留空则从 0 开始')
+    _t('今日初始访问量'),
+    _t('设置今日访问的起始值，新访问会自动累加。每天零点自动清零，留空则从 0 开始')
   );
   $form->addInput($todayVisits);
 
@@ -268,10 +268,60 @@ function themeConfig($form) {
     'visitIncrement',
     NULL,
     '1',
-    _t('每次访问增量'),
-    _t('默认为 1。设为 2 就是每次访问 +2，设为 3 就是 +3，以此类推')
+    _t('访问计数增量'),
+    _t('每次访问时增加的数值。默认为 1，如需加速增长可设为更大的数字')
   );
   $form->addInput($visitIncrement);
+
+  // ===== 社交链接 =====
+  $socialTitle = new Typecho_Widget_Helper_Layout();
+  $socialTitle->html('<div class="config-group-title">社交链接</div>');
+  $form->addItem($socialTitle);
+
+  $socialGithub = new Typecho_Widget_Helper_Form_Element_Text(
+    'socialGithub',
+    NULL,
+    '',
+    _t('GitHub'),
+    _t('填写 GitHub 个人主页链接，留空则不显示')
+  );
+  $form->addInput($socialGithub);
+
+  $socialTwitter = new Typecho_Widget_Helper_Form_Element_Text(
+    'socialTwitter',
+    NULL,
+    '',
+    _t('Twitter / X'),
+    _t('填写 Twitter 个人主页链接，留空则不显示')
+  );
+  $form->addInput($socialTwitter);
+
+  $socialWeibo = new Typecho_Widget_Helper_Form_Element_Text(
+    'socialWeibo',
+    NULL,
+    '',
+    _t('微博'),
+    _t('填写微博个人主页链接，留空则不显示')
+  );
+  $form->addInput($socialWeibo);
+
+  $socialEmail = new Typecho_Widget_Helper_Form_Element_Text(
+    'socialEmail',
+    NULL,
+    '',
+    _t('邮箱'),
+    _t('填写联系邮箱地址，留空则不显示')
+  );
+  $form->addInput($socialEmail);
+
+  $socialRss = new Typecho_Widget_Helper_Form_Element_Text(
+    'socialRss',
+    NULL,
+    '',
+    _t('RSS 订阅地址'),
+    _t('填写 RSS 订阅地址（如 /feed/ 或 https://example.com/rss.xml），留空则不显示 RSS 图标')
+  );
+  $form->addInput($socialRss);
 }
 
 function printerPaperNormalizeFontFamily($input) {

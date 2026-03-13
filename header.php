@@ -90,6 +90,8 @@
             <p><?php echo $this->options->subTitle ? htmlspecialchars($this->options->subTitle, ENT_QUOTES, 'UTF-8') : $this->options->description(); ?></p>
           </span>
         </a>
+
+
         <div class="power">
           <div class="power-dot"></div>
           <span class="power-text power-text-on">ON</span>
@@ -106,18 +108,16 @@
           <?php endwhile; ?>
         </nav>
         <div class="ctrls">
-          <?php if ($this->is('index')): ?>
-            <form class="header-search" method="get" action="<?php $this->options->siteUrl(); ?>" role="search">
-              <label class="header-search-label" for="header-search-input"><?php _t('搜索'); ?></label>
-              <input id="header-search-input" type="search" name="s" placeholder="<?php _t('搜索'); ?>" />
-              <button type="submit" class="header-search-btn" aria-label="<?php _t('搜索'); ?>">
-                <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
-                  <path d="M6.5 2a4.5 4.5 0 1 1 0 9A4.5 4.5 0 0 1 6.5 2zm0 1.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path>
-                  <path d="M10.4 10.4a.75.75 0 0 1 1.06 0l2.3 2.3a.75.75 0 1 1-1.06 1.06l-2.3-2.3a.75.75 0 0 1 0-1.06z"></path>
-                </svg>
-              </button>
-            </form>
-          <?php endif; ?>
+          <form class="header-search" method="get" action="<?php $this->options->siteUrl(); ?>" role="search">
+            <label class="header-search-label" for="header-search-input"><?php _t('搜索'); ?></label>
+            <input id="header-search-input" type="search" name="s" placeholder="<?php _t('搜索'); ?>" />
+            <button type="submit" class="header-search-btn" aria-label="<?php _t('搜索'); ?>">
+              <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
+                <path d="M6.5 2a4.5 4.5 0 1 1 0 9A4.5 4.5 0 0 1 6.5 2zm0 1.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path>
+                <path d="M10.4 10.4a.75.75 0 0 1 1.06 0l2.3 2.3a.75.75 0 1 1-1.06 1.06l-2.3-2.3a.75.75 0 0 1 0-1.06z"></path>
+              </svg>
+            </button>
+          </form>
           <div class="lang">
             <span>EN</span>
             <span class="current">中</span>

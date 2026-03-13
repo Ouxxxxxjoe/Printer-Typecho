@@ -25,13 +25,13 @@
   <div class="post-nav-item post-nav-prev">
     <span class="post-nav-label"><?php _e('上一篇'); ?></span>
     <span class="post-nav-link">
-      <?php $this->thePrev('%s', _t('没有更早的文章')); ?>
+      <?php $this->thePrev('%s', _t('已经是第一篇了')); ?>
     </span>
   </div>
   <div class="post-nav-item post-nav-next">
     <span class="post-nav-label"><?php _e('下一篇'); ?></span>
     <span class="post-nav-link">
-      <?php $this->theNext('%s', _t('没有更晚的文章')); ?>
+      <?php $this->theNext('%s', _t('已经是最后一篇了')); ?>
     </span>
   </div>
 </nav>
