@@ -4,7 +4,7 @@
 
 <article>
   <h1 class="paper-title"><?php $this->title(); ?></h1>
-  <div class="post-excerpt">
+  <div class="post-content">
     <?php $this->content(); ?>
   </div>
 </article>

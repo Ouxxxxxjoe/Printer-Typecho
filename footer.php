@@ -200,7 +200,7 @@
     (function () {
       var timeEl = document.getElementById('post-reading-time');
       if (!timeEl) return;
-      var content = document.querySelector('article .post-excerpt');
+      var content = document.querySelector('article .post-content') || document.querySelector('article .post-excerpt');
       if (!content) return;
       var chars = content.innerText.replace(/\s+/g, '').length;
       var minutes = Math.max(1, Math.ceil(chars / 200));
