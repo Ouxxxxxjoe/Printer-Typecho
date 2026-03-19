@@ -3,7 +3,7 @@
  * 一款仿打印纸风格的 Typecho 主题，复刻自NOOC https://nooc.me/ 
  * @package Printer
  * @author zhinan
- * @version 1.2
+ * @version 1.3
  * @link https://zhinan.blog/
  */
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;

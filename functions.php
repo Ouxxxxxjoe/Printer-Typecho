@@ -122,7 +122,7 @@ function themeConfig($form) {
   $logoText = new Typecho_Widget_Helper_Form_Element_Text(
     'logoText',
     NULL,
-    'Zhinan',
+    'Printer',
     _t('网站名称'),
     _t('显示在 Logo 旁边的文字。留空则使用 Typecho 后台设置的站点标题')
   );
@@ -231,6 +231,24 @@ function themeConfig($form) {
     _t('文章页面顶部分类标签的背景色。支持十六进制，如 #ff6b35 或简写 #f63')
   );
   $form->addInput($postCategoryColor);
+
+  $customBgUrl = new Typecho_Widget_Helper_Form_Element_Text(
+    'customBgUrl',
+    NULL,
+    '',
+    _t('自定义背景图'),
+    _t('填写背景图片链接，支持 .png、.jpg、.webp 等格式。留空则使用默认背景色。建议尺寸 1920x1080 或更大')
+  );
+  $form->addInput($customBgUrl);
+
+  $customBgDarkOverlay = new Typecho_Widget_Helper_Form_Element_Text(
+    'customBgDarkOverlay',
+    NULL,
+    '0.65',
+    _t('黑暗模式背景压暗强度'),
+    _t('黑暗模式下背景图的遮罩透明度，范围 0-1。默认 0.65，数值越大背景越暗。0 表示不压暗，1 表示完全黑色')
+  );
+  $form->addInput($customBgDarkOverlay);
 
   // ===== 统计与追踪 =====
   $analyticsTitle = new Typecho_Widget_Helper_Layout();

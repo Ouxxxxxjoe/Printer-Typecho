@@ -71,6 +71,51 @@
       }
     </style>
   <?php endif; ?>
+  <?php
+    // 自定义背景图设置
+    $customBgUrl = trim((string) $this->options->customBgUrl);
+    // 只允许 http/https 协议，防止 javascript: 等伪协议注入
+    if ($customBgUrl !== '' && !preg_match('/^https?:\/\//i', $customBgUrl)) {
+      $customBgUrl = '';
+    }
+    $customBgDarkOverlay = trim((string) $this->options->customBgDarkOverlay);
+    if ($customBgDarkOverlay === '' || !is_numeric($customBgDarkOverlay)) {
+      $customBgDarkOverlay = '0.65';
+    }
+    // 限制范围 0-1
+    $customBgDarkOverlay = max(0, min(1, (float) $customBgDarkOverlay));
+  ?>
+  <?php if ($customBgUrl !== ''): ?>
+    <style>
+      :root {
+        --printer-custom-bg-url: url(<?php echo htmlspecialchars($customBgUrl, ENT_QUOTES, 'UTF-8'); ?>);
+        --printer-custom-bg-dark-overlay: <?php echo $customBgDarkOverlay; ?>;
+      }
+      html, body {
+        background-image: var(--printer-custom-bg-url) !important;
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+      }
+      /* 白天模式：轻微遮罩确保可读性 */
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(241, 240, 235, 0.3);
+        pointer-events: none;
+        z-index: -1;
+      }
+      /* 黑暗模式：压暗背景图 */
+      html.dark body::before {
+        background: rgba(6, 13, 24, var(--printer-custom-bg-dark-overlay, 0.65));
+      }
+    </style>
+  <?php endif; ?>
   <?php $this->header(); ?>
 </head>
 <body>

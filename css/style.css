@@ -1,5 +1,6 @@
 :root {
   /* 使用OKLCH色彩空间，中性色带有微妙暖色相 */
+  /* 注意：同时提供 HEX 和 OKLCH 值以确保兼容性 */
   --bg: #f1f0eb;
   --bg-oklch: oklch(95% 0.01 85);
   --panel: #ece8df;
@@ -18,9 +19,10 @@
   --accent-oklch: oklch(75% 0.12 145);
 
   /* 阴影使用更自然的暖色调 */
-  --shadow: 0 12px 28px oklch(35% 0.03 85 / 0.1);
-  --shadow-elevated: 0 20px 40px oklch(35% 0.03 85 / 0.15);
-  --grid-line: oklch(50% 0.01 85 / 0.03);
+  --shadow: 0 12px 28px rgba(40, 34, 25, 0.1);
+  --shadow-elevated: 0 20px 40px rgba(40, 34, 25, 0.15);
+  /* 网格线颜色 - 使用 rgba 确保跨浏览器兼容性 */
+  --grid-line: rgba(180, 167, 146, 0.3);
 
   /* 间距系统 - 4px基数 */
   --space-1: 4px;
@@ -97,13 +99,13 @@ html.theme-animating .header-search-btn {
 }
 
 @keyframes power-pulse {
-  0%, 100% { box-shadow: 0 0 5px rgba(134, 188, 142, 0.4); }
-  50%       { box-shadow: 0 0 18px rgba(134, 188, 142, 1); }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
 @keyframes power-pulse-dark {
-  0%, 100% { box-shadow: 0 0 5px rgba(255, 77, 79, 0.4); }
-  50%       { box-shadow: 0 0 18px rgba(255, 77, 79, 1); }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
 /* 页面加载动画 */
@@ -164,10 +166,9 @@ body {
   padding: 0;
   color: var(--ink);
   background-color: var(--bg);
-  /* 优化：使用repeating-linear-gradient提升性能 */
+  /* 背景网格线 - 使用 SVG data URI 确保跨浏览器一致性 */
   background-image:
-    repeating-linear-gradient(to right, var(--grid-line) 0, var(--grid-line) 1px, transparent 1px, transparent 32px),
-    repeating-linear-gradient(to bottom, var(--grid-line) 0, var(--grid-line) 1px, transparent 1px, transparent 32px);
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3C/svg%3E");
   font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "PingFang SC", "Microsoft YaHei", sans-serif;
   /* 字体加载策略 - 不影响中文网字计划 */
   font-display: var(--font-display);
@@ -176,6 +177,11 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  /* 中文排版优化：启用 OpenType 特性 */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  /* 中英文混排自动间距 - 渐进增强 */
+  -webkit-text-spacing-trim: space-all;
+  text-spacing-trim: space-all;
 }
 
 html.printer-cn-font.printer-cn-scope-article article,
@@ -218,12 +224,17 @@ a {
     0 8px 16px rgba(40, 34, 25, 0.08);
   position: relative;
   z-index: 2;
-  /* 微交互：悬停时轻微上浮 */
-  transition: transform 300ms var(--ease-smooth), box-shadow 300ms var(--ease-smooth);
+  /* 使用 translate3d 启用 GPU 加速，减少闪烁 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* 微交互：悬停时轻微上浮 - 使用更短的过渡时间减少闪烁 */
+  transition: transform 200ms var(--ease-smooth), box-shadow 200ms var(--ease-smooth);
+  will-change: transform;
 }
 
 .printer-top:hover {
-  transform: translateY(-3px);
+  transform: translate3d(0, -3px, 0);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     0 28px 56px rgba(40, 34, 25, 0.15),
@@ -267,7 +278,6 @@ a {
   background: linear-gradient(145deg, #e8e0d0 0%, #d4c8b0 100%);
   position: relative;
   flex-shrink: 0;
-  aspect-ratio: 1 / 1;
   box-shadow:
     /* 外阴影 - 营造悬浮感 */
     0 8px 20px rgba(40, 34, 25, 0.15),
@@ -301,7 +311,6 @@ a {
   justify-content: center;
   overflow: hidden;
   flex-shrink: 0;
-  aspect-ratio: 1 / 1;
   background: linear-gradient(145deg, #e8e0d0 0%, #d4c8b0 100%);
   box-shadow:
     0 8px 20px rgba(40, 34, 25, 0.15),
@@ -378,6 +387,9 @@ html.dark .power-text-off {
   border-radius: 50%;
   background: var(--accent);
   animation: power-pulse 2.4s ease-in-out infinite;
+  /* 使用 opacity 动画代替 box-shadow 动画，性能更好 */
+  box-shadow: 0 0 10px rgba(134, 188, 142, 0.6);
+  will-change: opacity;
 }
 
 html.dark .power-dot {
@@ -418,15 +430,18 @@ html.dark .power-dot {
     0 8px 8px rgba(40, 34, 25, 0.15),
     0 12px 16px rgba(40, 34, 25, 0.1);
   /* 微交互 */
-  transition: all 150ms var(--ease-enter);
+  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
   position: relative;
   border: none;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  /* GPU 加速优化 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 悬停效果 - 轻微上浮 */
 .menu a:hover {
-  transform: translateY(-2px);
+  transform: translate3d(0, -2px, 0);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.8),
     0 8px 0 #c9bfa8,
@@ -436,7 +451,7 @@ html.dark .power-dot {
 
 /* 点击效果 - 按下凹陷 */
 .menu a:active {
-  transform: translateY(4px);
+  transform: translate3d(0, 4px, 0);
   box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.1),
     0 2px 0 #c9bfa8,
@@ -515,6 +530,8 @@ html.dark .power-dot {
   align-items: center;
   justify-content: center;
   padding: 0;
+  /* 防止溢出 */
+  overflow: hidden;
   /* 3D立体效果 */
   box-shadow:
     /* 顶部高光 */
@@ -523,8 +540,11 @@ html.dark .power-dot {
     0 5px 0 #c4b8a0,
     0 6px 8px rgba(40, 34, 25, 0.2),
     0 10px 16px rgba(40, 34, 25, 0.12);
-  transition: all 150ms var(--ease-enter);
+  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
   position: relative;
+  /* GPU 加速优化 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 旋钮内部凹陷 */
@@ -550,7 +570,7 @@ html.dark .power-dot {
 }
 
 .header-search-btn:hover {
-  transform: translateY(-2px);
+  transform: translate3d(0, -2px, 0);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.7),
     0 7px 0 #c4b8a0,
@@ -559,7 +579,7 @@ html.dark .power-dot {
 }
 
 .header-search-btn:active {
-  transform: translateY(3px);
+  transform: translate3d(0, 3px, 0);
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.12),
     0 2px 0 #c4b8a0,
@@ -631,13 +651,18 @@ html.dark .header-search-btn {
   background: linear-gradient(145deg, #f5f0e6 0%, #e0d6c4 100%);
   position: relative;
   cursor: pointer;
+  /* 防止溢出 */
+  overflow: hidden;
   /* 3D立体效果 */
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.7),
     0 5px 0 #c4b8a0,
     0 6px 8px rgba(40, 34, 25, 0.2),
     0 10px 16px rgba(40, 34, 25, 0.12);
-  transition: all 150ms var(--ease-enter);
+  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
+  /* GPU 加速优化 */
+  transform: translateZ(0);
+  backface-visibility: hidden;
 }
 
 /* 旋钮内部凹陷 */
@@ -673,7 +698,7 @@ html.dark .header-search-btn {
 }
 
 .theme-toggle:hover {
-  transform: translateY(-2px);
+  transform: translate3d(0, -2px, 0);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.7),
     0 7px 0 #c4b8a0,
@@ -682,7 +707,7 @@ html.dark .header-search-btn {
 }
 
 .theme-toggle:active {
-  transform: translateY(3px);
+  transform: translate3d(0, 3px, 0);
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.12),
     0 2px 0 #c4b8a0,
@@ -712,9 +737,63 @@ html.dark {
   --accent: #2fdc7b;
   --accent-oklch: oklch(75% 0.2 155);
 
-  --shadow: 0 18px 40px oklch(5% 0.05 250 / 0.6);
-  --shadow-elevated: 0 24px 48px oklch(5% 0.05 250 / 0.7);
-  --grid-line: oklch(50% 0.08 250 / 0.28);
+  /* 阴影和网格线 */
+  --shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
+  --shadow-elevated: 0 24px 48px rgba(0, 0, 0, 0.7);
+  --grid-line: rgba(120, 145, 181, 0.35);
+}
+
+/* 暗黑模式背景网格 */
+html.dark body {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%237891b5' stroke-width='1' stroke-opacity='0.35'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%237891b5' stroke-width='1' stroke-opacity='0.35'/%3E%3C/svg%3E");
+}
+
+/* ============================================
+   自定义背景图支持
+   ============================================ */
+
+/* 当使用自定义背景图时，禁用默认背景网格 */
+html:has(body[style*="background-image"]),
+body[style*="background-image"] {
+  background-image: var(--printer-custom-bg-url) !important;
+}
+
+/* 确保自定义背景图时，遮罩层正常工作 */
+body[style*="background-image"]::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(241, 240, 235, 0.3);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 黑暗模式下的遮罩 */
+html.dark body[style*="background-image"]::before {
+  background: rgba(6, 13, 24, var(--printer-custom-bg-dark-overlay, 0.65));
+}
+
+/* 自定义背景图时的纸张区域增强可读性 */
+body[style*="background-image"] .paper {
+  background: rgba(252, 251, 248, 0.95);
+  backdrop-filter: blur(2px);
+}
+
+body[style*="background-image"] .paper::before {
+  opacity: 0.15;
+}
+
+html.dark body[style*="background-image"] .paper {
+  background: rgba(15, 24, 36, 0.92);
+  backdrop-filter: blur(4px);
+}
+
+html.dark body[style*="background-image"] .paper::before {
+  opacity: 0.1;
 }
 
 html.dark .printer-top::after {
@@ -796,12 +875,12 @@ html.dark .lang .current {
 }
 
 html.dark .paper {
-  border-color: #20314a;
+  border-color: var(--line);
 }
 
 html.dark .paper::before {
-  background-image: linear-gradient(to bottom, rgba(142, 180, 235, 0.06) 1px, transparent 1px);
-  opacity: 0.3;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='30'%3E%3Cline x1='0' y1='0' x2='1' y2='0' stroke='%238eb4eb' stroke-width='1' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  opacity: 0.2;
 }
 
 html.dark .post-title a:hover {
@@ -811,7 +890,7 @@ html.dark .post-title a:hover {
 .paper {
   position: relative;
   background: var(--paper);
-  border: 1px solid #e4dfd3;
+  border: 1px solid var(--line);
   border-top: var(--space-2) solid var(--panel-deep);
   box-shadow: var(--shadow);
   padding: var(--space-6) var(--space-6) var(--space-7);
@@ -820,26 +899,23 @@ html.dark .post-title a:hover {
   min-height: 560px;
   /* 微交互：悬停时轻微阴影增强 */
   transition: box-shadow 300ms var(--ease-smooth);
+  /* 中文排版优化 */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  text-spacing-trim: space-all;
 }
 
 .paper:hover {
   box-shadow: var(--shadow-elevated);
 }
 
-/* 优化：使用repeating-linear-gradient提升性能 */
+/* 纸张横线效果 - 使用 SVG 确保跨浏览器一致性 */
 .paper::before {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgba(0, 0, 0, 0.015) 0,
-    rgba(0, 0, 0, 0.015) 1px,
-    transparent 1px,
-    transparent 30px
-  );
-  opacity: 0.45;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='30'%3E%3Cline x1='0' y1='0' x2='1' y2='0' stroke='%23000000' stroke-width='1' stroke-opacity='0.04'/%3E%3C/svg%3E");
+  opacity: 0.25;
 }
 
 .paper>* {
@@ -853,7 +929,7 @@ html.dark .post-title a:hover {
   font-weight: 700;
   line-height: 1.1;
   letter-spacing: -0.01em;
-  background: linear-gradient(135deg, var(--ink) 0%, #5a5448 100%);
+  background: linear-gradient(135deg, var(--ink) 0%, var(--muted) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -875,23 +951,26 @@ html.dark .post-title a:hover {
 }
 
 .paper-meta {
-  border-top: 1px dashed #ece6da;
-  border-bottom: 1px dashed #ece6da;
-  padding: 14px 0 10px;
-  margin-bottom: 26px;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: var(--space-4) 0 var(--space-3);
+  margin-bottom: var(--space-6);
 }
 
 .meta-group+.meta-group {
-  margin-top: 12px;
+  margin-top: var(--space-4);
 }
 
 .meta-label {
-  margin: 0 0 7px;
-  color: #8f887d;
-  font-size: 12px;
+  margin: 0 0 var(--space-2);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--space-2);
 }
 
 .meta-label-icon {
@@ -915,35 +994,34 @@ html.dark .meta-label-icon svg {
 .meta-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .meta-tags a {
   font-size: 12px;
-  color: #5f5850;
-  border: 1px solid #e8e0d4;
-  border-radius: 20px;
-  background: linear-gradient(145deg, #fdfbf7 0%, #f5f0e8 100%);
-  padding: 4px 12px;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--panel);
+  padding: var(--space-1) var(--space-3);
   font-weight: 500;
   transition: all 0.2s var(--ease-enter);
 }
 
 .meta-tags a:hover {
-  background: linear-gradient(145deg, #f5f0e8 0%, #ebe5db 100%);
-  border-color: #d4c8b8;
+  background: var(--panel-deep);
+  border-color: var(--muted);
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(40, 34, 25, 0.08);
 }
 
 
 .meta-tags span {
   font-size: 12px;
-  color: #8c857a;
-  border: 1px dashed #d8d0c3;
-  border-radius: 20px;
-  background: #faf7f1;
-  padding: 4px 12px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-full);
+  background: var(--paper);
+  padding: var(--space-1) var(--space-3);
   font-style: italic;
 }
 
@@ -954,58 +1032,33 @@ html.dark .meta-label-icon svg {
 }
 
 .post-item {
-  border-top: 1px dashed #e7e1d6;
-  padding: 28px 16px;
-  margin: 0 -16px;
-  border-radius: 12px;
-  transition: all 0.3s var(--ease-smooth);
+  border-top: 1px solid var(--line);
+  padding: var(--space-6) var(--space-5);
+  margin: 0 calc(-1 * var(--space-5));
+  transition: background-color 0.2s var(--ease-smooth);
 }
 
 .post-item:first-child {
   border-top: 0;
-  padding-top: 8px;
+  padding-top: var(--space-3);
 }
 
 .post-item:hover {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.015) 0%, rgba(0, 0, 0, 0.025) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    0 4px 12px rgba(0, 0, 0, 0.04);
+  background-color: var(--panel);
 }
 
-.post-item:nth-child(even) {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.012) 0%, rgba(0, 0, 0, 0.018) 100%);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 1px 3px rgba(0, 0, 0, 0.02);
-}
-
-.post-item:nth-child(even):hover {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.4),
-    0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-html.dark .post-item:nth-child(even) {
-  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.015) 0%, rgba(255, 255, 255, 0.025) 100%);
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-html.dark .post-item:nth-child(even):hover {
-  box-shadow: 
-    inset 0 1px 0 rgba(255, 255, 255, 0.03),
-    0 2px 8px rgba(0, 0, 0, 0.15);
+html.dark .post-item:hover {
+  background-color: var(--panel);
 }
 
 .post-date {
-  margin: 0 0 10px;
-  font-size: 12px;
+  margin: 0 0 var(--space-2);
+  font-size: 11px;
   color: var(--muted);
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  opacity: 0.8;
 }
 
 .post-meta {
@@ -1059,20 +1112,14 @@ html.dark .post-meta-value a {
   color: var(--printer-post-category-color);
 }
 
-.post-meta-value a:hover {
-  background: rgb(var(--printer-post-category-rgb) / 0.12);
-}
-
-html.dark .post-meta-value a:hover {
-  background: rgb(var(--printer-post-category-rgb) / 0.12);
-}
-
 .post-title {
-  margin: 0;
-  font-size: clamp(18px, 2.5vw, 24px);
+  margin: var(--space-1) 0 0;
+  font-size: clamp(18px, 2.5vw, 22px);
   font-weight: 600;
-  line-height: 1.3;
+  line-height: 1.4;
   letter-spacing: -0.01em;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .post-title a {
@@ -1093,7 +1140,7 @@ html.dark .post-meta-value a:hover {
 }
 
 .post-title a:hover {
-  color: #45403a;
+  color: var(--accent);
 }
 
 .post-title a:hover::after {
@@ -1101,13 +1148,29 @@ html.dark .post-meta-value a:hover {
 }
 
 .post-excerpt {
-  margin: 12px 0 0;
-  color: inherit;
+  margin: var(--space-3) 0 0;
+  color: var(--muted);
   font-size: 15px;
-  line-height: 1.8;
+  line-height: 1.75;
   overflow-wrap: anywhere;
   word-break: break-word;
-  opacity: 0.9;
+  /* 中文排版优化 */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "palt" 0;
+  text-align: justify;
+  text-justify: inter-ideograph;
+}
+
+/* 中英文混排自动间距：在英文和数字前后添加微小间距 */
+.post-excerpt :where(p, li, td, th, blockquote) {
+  /* 使用 text-spacing-trim 控制标点间距 */
+  text-spacing-trim: space-all;
+}
+
+/* 针对英文单词、数字、代码的间距优化 */
+.post-excerpt :where(p, li, td, th, blockquote) > *:is(code, em, strong, a),
+.post-excerpt :where(p, li, td, th, blockquote)::before,
+.post-excerpt :where(p, li, td, th, blockquote)::after {
+  text-spacing-trim: normal;
 }
 
 .post-excerpt blockquote {
@@ -1231,7 +1294,7 @@ html.dark .post-excerpt tbody tr:nth-child(even) td {
 .post-nav {
   margin-top: 26px;
   padding-top: 18px;
-  border-top: 1px dashed #e7e1d6;
+  border-top: 1px dashed var(--line);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
@@ -1304,13 +1367,13 @@ html.dark .post-excerpt tbody tr:nth-child(even) td {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(145deg, #f5f0e6 0%, #e0d6c4 100%);
+  background: linear-gradient(145deg, var(--panel) 0%, var(--panel-deep) 100%);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.7),
-    0 4px 0 #c4b8a0,
+    0 4px 0 var(--line),
     0 6px 8px rgba(40, 34, 25, 0.15);
   transition: all 0.2s var(--ease-enter);
-  color: #7a7265;
+  color: var(--muted);
 }
 
 .social-link svg {
@@ -1483,9 +1546,9 @@ html.dark .post-excerpt tbody tr:nth-child(even) td {
 .not-found-search-bar input[type="search"] {
   flex: 1;
   width: 100%;
-  border: 1px solid #ddd5c8;
+  border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fdfbf6;
+  background: var(--paper);
   padding: 10px 12px;
   font-size: 13px;
   color: inherit;
@@ -1604,24 +1667,10 @@ html.dark .back-to-top:active {
     0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
-@media (max-width: 720px) {
-  .site-footer-inner {
-    flex-wrap: wrap;
-    justify-content: center;
-    row-gap: 10px;
-  }
-
-  .site-footer-left,
-  .site-footer-center,
-  .site-footer-right {
-    white-space: normal;
-  }
-}
-
 .comments-area {
   margin-top: 30px;
   padding-top: 20px;
-  border-top: 1px dashed #e7e1d6;
+  border-top: 1px dashed var(--line);
 }
 
 .comments-title {
@@ -1636,7 +1685,7 @@ html.dark .back-to-top:active {
 }
 
 .comment-item {
-  border-top: 1px dashed #ece6da;
+  border-top: 1px dashed var(--line);
   padding: 12px 0;
 }
 
@@ -1647,7 +1696,7 @@ html.dark .back-to-top:active {
 .comment-meta {
   margin: 0 0 6px;
   font-size: 12px;
-  color: #7e786e;
+  color: var(--muted);
 }
 
 .comment-dot {
@@ -1675,12 +1724,12 @@ html.dark .back-to-top:active {
   display: block;
   margin-bottom: 6px;
   font-size: 12px;
-  color: #8f887d;
+  color: var(--muted);
   letter-spacing: 0.05em;
 }
 
 html.dark .respond-label {
-  color: #8192a8;
+  color: var(--muted);
 }
 
 .respond-grid {
@@ -1693,9 +1742,9 @@ html.dark .respond-label {
 #comment-form input,
 #comment-form textarea {
   width: 100%;
-  border: 1px solid #ddd5c8;
+  border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fdfbf6;
+  background: var(--paper);
   padding: 9px 10px;
   font-size: 13px;
   color: #3f3a33;
@@ -1785,6 +1834,59 @@ article .post-excerpt p {
 article .post-excerpt img {
   max-width: 100%;
   height: auto;
+}
+
+/* ============================================
+   中文排版优化：中英文混排自动间距
+   ============================================
+   在中文和英文/数字之间自动添加微小间距
+   使用渐进增强策略：基础样式 + 高级特性
+*/
+
+/* 基础排版优化 - 所有浏览器支持 */
+.paper,
+.post-excerpt,
+.comment-content {
+  /* 启用 East Asian 字体特性 */
+  font-variant-east-asian: proportional-width;
+}
+
+/* 渐进增强：自动处理中西文间距（Chrome 121+ 支持） */
+@supports (text-autospace: ideograph-alpha) {
+  .paper,
+  .post-excerpt,
+  .comment-content {
+    text-autospace: ideograph-alpha ideograph-numeric;
+  }
+}
+
+/* 回退方案：为所有浏览器提供基础间距 */
+.paper :where(p, li, td, th) > *:is(code, em, strong, a),
+.post-excerpt :where(p, li, td, th) > *:is(code, em, strong, a),
+.comment-content :where(p, li, td, th) > *:is(code, em, strong, a) {
+  margin: 0 0.05em;
+}
+
+/* 行内代码块前后间距 */
+.paper :not(pre) > code,
+.post-excerpt :not(pre) > code,
+.comment-content :not(pre) > code {
+  margin: 0 0.15em;
+}
+
+/* 标点符号优化 */
+.paper,
+.post-excerpt {
+  /* 标点挤压 */
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1, "palt" 0, "pwid" 0;
+}
+
+/* 渐进增强：行首行尾标点处理（Safari 支持较好） */
+@supports (hanging-punctuation: allow-end) {
+  .paper,
+  .post-excerpt {
+    hanging-punctuation: allow-end last;
+  }
 }
 
 @media (max-width: 920px) {
@@ -2036,6 +2138,8 @@ article .post-excerpt img {
     width: 44px;
     height: 44px;
     flex-shrink: 0;
+    /* 确保移动端也有溢出隐藏 */
+    overflow: hidden;
   }
 
   .header-search-btn::before {
@@ -2198,7 +2302,7 @@ article .post-excerpt img {
 
   .site-footer-card {
     padding: 24px 16px;
-    border-radius: var(--radius);
+    border-radius: var(--radius-md);
   }
 
   .site-footer-social {
@@ -2414,6 +2518,8 @@ article .post-excerpt img {
       0 5px 0 #c4b8a0,
       0 6px 8px rgba(40, 34, 25, 0.2),
       0 10px 16px rgba(40, 34, 25, 0.12);
+    /* 确保触摸设备上也有溢出隐藏 */
+    overflow: hidden;
   }
 
   /* 优化触摸反馈 */
@@ -2423,6 +2529,16 @@ article .post-excerpt img {
   .page-navigator a:active {
     transform: translateY(3px) scale(0.98);
     transition-duration: 100ms;
+  }
+
+  /* 禁用悬停效果时保持基础样式 */
+  .theme-toggle:hover {
+    transform: none;
+    box-shadow:
+      inset 0 2px 4px rgba(255, 255, 255, 0.7),
+      0 5px 0 #c4b8a0,
+      0 6px 8px rgba(40, 34, 25, 0.2),
+      0 10px 16px rgba(40, 34, 25, 0.12);
   }
 
   /* 增大触摸目标 */
@@ -2464,49 +2580,6 @@ article .post-excerpt img {
 
   html.dark .power-dot {
     box-shadow: 0 0 8px rgba(255, 77, 79, 0.6);
-  }
-}
-
-  .theme-toggle {
-    width: 38px;
-    height: 38px;
-    border-radius: 50%;
-    box-shadow:
-      inset -2px -3px 6px rgba(136, 118, 88, 0.16),
-      0 10px 18px rgba(40, 34, 25, 0.12);
-  }
-
-  .theme-toggle::after {
-    height: 12px;
-    top: 7px;
-  }
-
-  .paper-title {
-    font-size: 24px;
-  }
-
-  .paper>h2.paper-title {
-    font-size: 18px;
-  }
-
-  .post-title {
-    font-size: 18px;
-  }
-
-  .post-excerpt {
-    font-size: 15px;
-  }
-
-  .respond-grid {
-    grid-template-columns: 1fr;
-  }
-
-  /* 移动端适配：移除负边距，确保边缘对齐 */
-  .post-item {
-    padding-left: 8px;
-    padding-right: 8px;
-    margin-left: -8px;
-    margin-right: -8px;
   }
 }
 
@@ -2606,7 +2679,38 @@ html.dark .power-dot {
 
 /* ============================================
    无障碍：链接和按钮键盘焦点可见性
-   ============================================ */
+   ============================================
+   使用 :focus 作为回退，:focus-visible 作为渐进增强
+   确保在不支持 focus-visible 的浏览器中也能看到焦点
+*/
+
+/* 基础焦点样式 - 所有浏览器支持 */
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* 为大多数元素添加圆角焦点轮廓 */
+a:focus:not(.theme-toggle):not(.header-search-btn),
+button:focus:not(.theme-toggle):not(.header-search-btn),
+input:focus,
+textarea:focus,
+select:focus {
+  border-radius: var(--radius-sm);
+}
+
+/* 圆形按钮保持圆形焦点轮廓 */
+.theme-toggle:focus,
+.header-search-btn:focus {
+  border-radius: 50%;
+  outline-offset: 2px;
+}
+
+/* 现代浏览器使用 focus-visible（仅在键盘导航时显示） */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -2614,18 +2718,55 @@ textarea:focus-visible,
 select:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: var(--radius-sm);
   transition: outline-offset 150ms var(--ease-enter);
 }
 
-/* 按钮焦点增强 */
-button:focus-visible,
-.menu a:focus-visible,
-.header-search-btn:focus-visible,
+/* 为大多数元素添加圆角焦点轮廓 */
+a:focus-visible:not(.theme-toggle),
+button:focus-visible:not(.theme-toggle),
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  border-radius: var(--radius-sm);
+}
+
+/* 主题切换按钮保持圆形焦点轮廓 */
 .theme-toggle:focus-visible {
+  border-radius: 50%;
+  outline-offset: 2px;
+}
+
+/* 鼠标点击时不显示焦点轮廓（现代浏览器） */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* 按钮焦点增强 */
+button:focus-visible:not(.theme-toggle):not(.header-search-btn),
+.menu a:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 4px;
-  box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.2);
+  box-shadow: 0 0 0 4px rgba(149, 195, 148, 0.3);
+}
+
+/* 圆形按钮焦点增强 - 保持圆形轮廓 */
+.theme-toggle:focus-visible,
+.header-search-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(149, 195, 148, 0.3);
+  border-radius: 50%;
+}
+
+/* 支持 OKLCH 的浏览器使用更精确的焦点阴影 */
+@supports (color: oklch(0% 0 0)) {
+  button:focus-visible,
+  .menu a:focus-visible,
+  .header-search-btn:focus-visible,
+  .theme-toggle:focus-visible {
+    box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.3);
+  }
 }
 
 /* 减少动画偏好支持 */

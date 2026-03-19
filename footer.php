@@ -131,12 +131,32 @@
       if (!bar) return;
       var article = document.querySelector('article');
       if (!article) return;
+
+      // 最小文章高度阈值：只有文章足够长时才显示进度条
+      var MIN_ARTICLE_HEIGHT = window.innerHeight * 1.5; // 文章高度至少为视窗高度的1.5倍
+
+      // 检查文章是否足够长
+      var checkArticleLength = function () {
+        var articleHeight = article.offsetHeight;
+        if (articleHeight < MIN_ARTICLE_HEIGHT) {
+          bar.style.display = 'none';
+          return false;
+        }
+        bar.style.display = '';
+        return true;
+      };
+
       var update = function () {
+        if (bar.style.display === 'none') return;
         var total = article.offsetTop + article.offsetHeight - window.innerHeight;
         var progress = total > 0 ? Math.min(100, Math.max(0, (window.scrollY / total) * 100)) : 100;
         bar.style.width = progress + '%';
         bar.setAttribute('aria-valuenow', Math.round(progress));
       };
+
+      // 初始化检查
+      if (!checkArticleLength()) return;
+
       window.addEventListener('scroll', update, { passive: true });
       update();
     })();
