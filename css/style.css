@@ -1901,7 +1901,9 @@ article .post-content p {
 article .post-excerpt img,
 article .post-content img {
   max-width: 100%;
+  width: 100%;
   height: auto;
+  display: block;
 }
 
 /* ============================================
