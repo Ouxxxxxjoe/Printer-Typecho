@@ -170,8 +170,6 @@ body {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3C/svg%3E");
   font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "PingFang SC", "Microsoft YaHei", sans-serif;
-  /* 字体加载策略 - 不影响中文网字计划 */
-  font-display: var(--font-display);
   transition: background-color 250ms var(--ease-smooth);
   /* 优化文本渲染 */
   -webkit-font-smoothing: antialiased;
@@ -348,6 +346,7 @@ a {
   letter-spacing: 0.25em;
   font-weight: 600;
   background: linear-gradient(135deg, var(--ink) 0%, #5a5448 100%);
+  color: transparent;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -754,7 +753,6 @@ html.dark body {
    ============================================ */
 
 /* 当使用自定义背景图时，禁用默认背景网格 */
-html:has(body[style*="background-image"]),
 body[style*="background-image"] {
   background-image: var(--printer-custom-bg-url) !important;
 }
@@ -780,6 +778,7 @@ html.dark body[style*="background-image"]::before {
 /* 自定义背景图时的纸张区域增强可读性 */
 body[style*="background-image"] .paper {
   background: rgba(252, 251, 248, 0.95);
+  -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 }
 
@@ -789,6 +788,7 @@ body[style*="background-image"] .paper::before {
 
 html.dark body[style*="background-image"] .paper {
   background: rgba(15, 24, 36, 0.92);
+  -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
@@ -908,7 +908,10 @@ html.dark .paper::before {
 .paper::before {
   content: "";
   position: absolute;
-  inset: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='30'%3E%3Cline x1='0' y1='0' x2='1' y2='0' stroke='%23000000' stroke-width='1' stroke-opacity='0.04'/%3E%3C/svg%3E");
   opacity: 0.25;
@@ -926,6 +929,7 @@ html.dark .paper::before {
   line-height: 1.1;
   letter-spacing: -0.01em;
   background: linear-gradient(135deg, var(--ink) 0%, var(--muted) 100%);
+  color: transparent;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -2042,6 +2046,16 @@ article .post-content img {
     height: 40px;
   }
 
+  .header-search-btn::before {
+    width: 32px;
+    height: 32px;
+  }
+
+  .theme-toggle::before {
+    width: 32px;
+    height: 32px;
+  }
+
   .lang {
     font-size: 11px;
   }
@@ -2235,6 +2249,7 @@ article .post-content img {
     width: 3px;
     height: 10px;
     top: 7px;
+    transform-origin: center 14px;
   }
 
   /* 语言切换器优化 */
@@ -2383,13 +2398,13 @@ article .post-content img {
   }
 
   .social-link {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .social-link svg {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
   }
 
   .site-footer-divider {
