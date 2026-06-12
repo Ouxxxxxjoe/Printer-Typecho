@@ -1,23 +1,25 @@
 <?php
 /**
- * 一款仿打印纸风格的 Typecho 主题，复刻自NOOC https://nooc.me/ 
+ * 一款仿打印纸风格的 Typecho 主题。
  * @package Printer
  * @author zhinan
- * @version 1.3
+ * @version 1.4
  * @link https://zhinan.blog/
  */
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 ?>
 <?php $this->need('header.php'); ?>
 
-<h2 class="paper-title">
-  <?php $this->archiveTitle(array(
-    'category'  => _t('%s'),
-    'search'    => _t('搜索：%s'),
-    'tag'       => _t('标签：%s'),
-    'author'    => _t('%s')
-  ), '', ''); ?>
-</h2>
+<?php if (!$this->is('index')): ?>
+  <h2 class="paper-title">
+    <?php $this->archiveTitle(array(
+      'category'  => _t('%s'),
+      'search'    => _t('搜索：%s'),
+      'tag'       => _t('标签：%s'),
+      'author'    => _t('%s')
+    ), '', ''); ?>
+  </h2>
+<?php endif; ?>
 <p class="paper-subtitle"><?php _e('共 %d 篇内容', $this->getTotal()); ?></p>
 
 <section class="paper-meta">

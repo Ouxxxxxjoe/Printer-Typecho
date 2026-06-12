@@ -46,7 +46,6 @@
   --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --ease-enter: cubic-bezier(0, 0, 0.2, 1);
   --ease-exit: cubic-bezier(0.4, 0, 1, 1);
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
   /* 字体加载策略 - 确保中文网字计划不受影响 */
   --font-display: swap;
@@ -95,7 +94,7 @@ html.theme-animating .header-search-btn {
     background-color 180ms var(--ease-enter),
     border-color 180ms var(--ease-enter),
     box-shadow 180ms var(--ease-enter),
-    transform 180ms var(--ease-bounce);
+    transform 180ms var(--ease-enter);
 }
 
 @keyframes power-pulse {
@@ -621,7 +620,10 @@ html.dark .header-search-btn {
   padding: 5px 10px;
   border-radius: 16px;
   cursor: pointer;
-  transition: all 200ms var(--ease-enter);
+  transition:
+    background-color 200ms var(--ease-enter),
+    color 200ms var(--ease-enter),
+    box-shadow 200ms var(--ease-enter);
   letter-spacing: 0.05em;
 }
 
@@ -689,7 +691,7 @@ html.dark .header-search-btn {
   left: 50%;
   transform: translateX(-50%) rotate(20deg);
   transform-origin: center 16px;
-  transition: transform 400ms var(--ease-bounce);
+  transition: transform 300ms var(--ease-smooth);
   box-shadow:
     0 1px 2px rgba(0, 0, 0, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
@@ -1005,7 +1007,14 @@ html.dark .meta-label-icon svg {
   background: var(--panel);
   padding: var(--space-1) var(--space-3);
   font-weight: 500;
-  transition: all 0.2s var(--ease-enter);
+  transition:
+    background-color 0.2s var(--ease-enter),
+    border-color 0.2s var(--ease-enter),
+    color 0.2s var(--ease-enter),
+    transform 0.2s var(--ease-enter);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .meta-tags a:hover {
@@ -1023,6 +1032,9 @@ html.dark .meta-label-icon svg {
   background: var(--paper);
   padding: var(--space-1) var(--space-3);
   font-style: italic;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .post-list {
@@ -1096,7 +1108,12 @@ html.dark .post-item:hover {
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  transition: all 0.2s var(--ease-enter);
+  transition:
+    background-color 0.2s var(--ease-enter),
+    border-color 0.2s var(--ease-enter),
+    color 0.2s var(--ease-enter),
+    transform 0.2s var(--ease-enter),
+    box-shadow 0.2s var(--ease-enter);
 }
 
 .post-meta-value a:hover {
@@ -1124,7 +1141,7 @@ html.dark .post-meta-value a {
 
 .post-title a {
   display: inline-block;
-  transition: all 0.25s var(--ease-enter);
+  transition: color 0.25s var(--ease-enter);
   position: relative;
 }
 
@@ -1438,7 +1455,10 @@ html.dark .post-content tbody tr:nth-child(even) td {
     inset 0 2px 4px rgba(255, 255, 255, 0.7),
     0 4px 0 var(--line),
     0 6px 8px rgba(40, 34, 25, 0.15);
-  transition: all 0.2s var(--ease-enter);
+  transition:
+    color 0.2s var(--ease-enter),
+    transform 0.2s var(--ease-enter),
+    box-shadow 0.2s var(--ease-enter);
   color: var(--muted);
 }
 
@@ -1463,6 +1483,14 @@ html.dark .post-content tbody tr:nth-child(even) td {
     inset 0 3px 6px rgba(0, 0, 0, 0.1),
     0 2px 0 #c4b8a0,
     0 3px 5px rgba(40, 34, 25, 0.1);
+}
+
+.social-link:hover,
+.social-link:focus,
+.social-link:focus-visible,
+.social-link:active,
+.social-link:visited {
+  border-radius: 50%;
 }
 
 /* 分隔装饰 */
@@ -1848,7 +1876,11 @@ html.dark #comment-form textarea:focus {
   font-size: 13px;
   padding: 8px 14px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
 }
 
 #comment-form button:hover {
@@ -2322,6 +2354,9 @@ article .post-content img {
   .meta-tags span {
     font-size: 11px;
     padding: 3px 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
   }
 
   /* 分页导航优化 */
@@ -2784,8 +2819,8 @@ select:focus {
 }
 
 /* 为大多数元素添加圆角焦点轮廓 */
-a:focus:not(.theme-toggle):not(.header-search-btn),
-button:focus:not(.theme-toggle):not(.header-search-btn),
+a:focus:not(.theme-toggle):not(.header-search-btn):not(.social-link),
+button:focus:not(.theme-toggle):not(.header-search-btn):not(.social-link),
 input:focus,
 textarea:focus,
 select:focus {
@@ -2795,7 +2830,8 @@ select:focus {
 /* 圆形按钮保持圆形焦点轮廓 */
 .theme-toggle:focus,
 .header-search-btn:focus,
-.back-to-top:focus {
+.back-to-top:focus,
+.social-link:focus {
   border-radius: 50%;
   outline-offset: 2px;
 }
@@ -2812,8 +2848,8 @@ select:focus-visible {
 }
 
 /* 为大多数元素添加圆角焦点轮廓 */
-a:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top),
-button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top),
+a:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top):not(.social-link),
+button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top):not(.social-link),
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
@@ -2823,7 +2859,8 @@ select:focus-visible {
 /* 圆形按钮保持圆形焦点轮廓 */
 .theme-toggle:focus-visible,
 .header-search-btn:focus-visible,
-.back-to-top:focus-visible {
+.back-to-top:focus-visible,
+.social-link:focus-visible {
   border-radius: 50%;
   outline-offset: 2px;
 }
@@ -2845,7 +2882,8 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
 /* 圆形按钮焦点增强 - 保持圆形轮廓 */
 .theme-toggle:focus-visible,
 .header-search-btn:focus-visible,
-.back-to-top:focus-visible {
+.back-to-top:focus-visible,
+.social-link:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
   box-shadow: 0 0 0 4px rgba(149, 195, 148, 0.3);
@@ -2858,28 +2896,8 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
   .menu a:focus-visible,
   .header-search-btn:focus-visible,
   .theme-toggle:focus-visible,
-  .back-to-top:focus-visible {
+  .back-to-top:focus-visible,
+  .social-link:focus-visible {
     box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.3);
-  }
-}
-
-/* 减少动画偏好支持 */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-
-  .power-dot {
-    animation: none;
-    box-shadow: 0 0 8px rgba(134, 188, 142, 0.6);
-  }
-
-  html.dark .power-dot {
-    box-shadow: 0 0 8px rgba(255, 77, 79, 0.6);
   }
 }

@@ -1,23 +1,6 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
-// 启动 Session（用于访问统计去重）
-// 注意：必须在任何输出之前启动
-if (session_status() === PHP_SESSION_NONE) {
-  // 设置 Session 参数（可选，根据需要调整）
-  ini_set('session.cookie_httponly', 1);
-  ini_set('session.use_only_cookies', 1);
-  ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0);
-  
-  @session_start();
-}
-
-// 设置不缓存的 HTTP 头（防止 CDN 缓存包含动态数据的页面）
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
-header('Expires: 0');
-
 // Typecho 类声明（用于 IDE 智能提示）
 if (false) {
     /** @SuppressWarnings(PHPMD) */
@@ -83,9 +66,6 @@ if (!defined('__TYPECHO_ROOT_DIR__')) {
     define('__TYPECHO_ROOT_DIR__', dirname(__DIR__));
 }
 
-// 初始化访问统计数据库表（每次加载时检查，确保表存在）
-printerPaperInitVisitStatsTable();
-
 function themeConfig($form) {
   /** @var Typecho_Widget_Helper_Form $form */
   
@@ -122,7 +102,7 @@ function themeConfig($form) {
   $logoText = new Typecho_Widget_Helper_Form_Element_Text(
     'logoText',
     NULL,
-    'Printer',
+    'Zhinan',
     _t('网站名称'),
     _t('显示在 Logo 旁边的文字。留空则使用 Typecho 后台设置的站点标题')
   );
@@ -174,9 +154,162 @@ function themeConfig($form) {
     array('1' => _t('显示'), '0' => _t('隐藏')),
     '1',
     _t('阅读时间估算'),
-    _t('在文章页面显示预计阅读时长，按每分钟阅读 400 字计算')
+    _t('在文章页面显示预计阅读时长，按每分钟阅读 200 字计算')
   );
   $form->addInput($showReadingTime);
+
+  // ===== AI 可读内容出口 =====
+  $aiTitle = new Typecho_Widget_Helper_Layout();
+  $aiTitle->html('<div class="config-group-title">AI 可读内容出口</div>');
+  $form->addItem($aiTitle);
+
+  $enableStructuredData = new Typecho_Widget_Helper_Form_Element_Select(
+    'enableStructuredData',
+    array('1' => _t('启用'), '0' => _t('关闭')),
+    '1',
+    _t('结构化数据 JSON-LD'),
+    _t('在首页和文章页输出 Schema.org JSON-LD，帮助搜索引擎和 AI 搜索理解站点内容')
+  );
+  $form->addInput($enableStructuredData);
+
+  $aiSiteSummary = new Typecho_Widget_Helper_Form_Element_Textarea(
+    'aiSiteSummary',
+    NULL,
+    '',
+    _t('站点 AI 摘要'),
+    _t('用一两句话说明本站主题、内容范围和适合回答的问题。留空则使用 Typecho 站点描述')
+  );
+  $form->addInput($aiSiteSummary);
+
+  $schemaPublisherName = new Typecho_Widget_Helper_Form_Element_Text(
+    'schemaPublisherName',
+    NULL,
+    '',
+    _t('发布者名称'),
+    _t('用于结构化数据中的 publisher。留空则使用网站名称')
+  );
+  $form->addInput($schemaPublisherName);
+
+  $schemaPublisherLogo = new Typecho_Widget_Helper_Form_Element_Text(
+    'schemaPublisherLogo',
+    NULL,
+    '',
+    _t('发布者 Logo'),
+    _t('用于结构化数据中的 publisher.logo。留空则使用 Logo 图片配置')
+  );
+  $form->addInput($schemaPublisherLogo);
+
+  $enableLlmIndex = new Typecho_Widget_Helper_Form_Element_Select(
+    'enableLlmIndex',
+    array('1' => _t('启用'), '0' => _t('关闭')),
+    '1',
+    _t('LLM 页面出口'),
+    _t('控制 LLM.php 页面模板是否输出机器可读 Markdown 索引')
+  );
+  $form->addInput($enableLlmIndex);
+
+  $llmIndexTitle = new Typecho_Widget_Helper_Form_Element_Text(
+    'llmIndexTitle',
+    NULL,
+    'AI Readable Index',
+    _t('LLM 出口标题'),
+    _t('显示在 LLM 页面顶部的标题')
+  );
+  $form->addInput($llmIndexTitle);
+
+  $llmReadInstructions = new Typecho_Widget_Helper_Form_Element_Textarea(
+    'llmReadInstructions',
+    NULL,
+    '',
+    _t('推荐读取说明'),
+    _t('告诉 AI 应该如何读取本站内容。留空则使用主题默认说明')
+  );
+  $form->addInput($llmReadInstructions);
+
+  $llmScopeNotes = new Typecho_Widget_Helper_Form_Element_Textarea(
+    'llmScopeNotes',
+    NULL,
+    '',
+    _t('适合回答的问题'),
+    _t('说明本站内容适合支持哪些问题或任务')
+  );
+  $form->addInput($llmScopeNotes);
+
+  $llmNotServedNotes = new Typecho_Widget_Helper_Form_Element_Textarea(
+    'llmNotServedNotes',
+    NULL,
+    '',
+    _t('不提供内容说明'),
+    _t('说明哪些内容不建议 AI 当作知识来源，如评论区、后台页面、动态统计等')
+  );
+  $form->addInput($llmNotServedNotes);
+
+  $llmCitationNotes = new Typecho_Widget_Helper_Form_Element_Textarea(
+    'llmCitationNotes',
+    NULL,
+    '',
+    _t('引用说明'),
+    _t('说明 AI 或用户引用本站内容时应如何署名和附链接')
+  );
+  $form->addInput($llmCitationNotes);
+
+  $llmRecentPostsLimit = new Typecho_Widget_Helper_Form_Element_Text(
+    'llmRecentPostsLimit',
+    NULL,
+    '20',
+    _t('最近文章数量'),
+    _t('LLM 页面输出的最近文章数量，建议 10-50')
+  );
+  $form->addInput($llmRecentPostsLimit);
+
+  $llmPostOutputMode = new Typecho_Widget_Helper_Form_Element_Select(
+    'llmPostOutputMode',
+    array(
+      'summary' => _t('标题、链接和摘要'),
+      'link' => _t('仅标题和链接'),
+      'full' => _t('包含正文摘录')
+    ),
+    'summary',
+    _t('文章输出模式'),
+    _t('控制 LLM 页面中文章列表的详细程度。全文摘录会增加页面体积')
+  );
+  $form->addInput($llmPostOutputMode);
+
+  $llmIncludeCategories = new Typecho_Widget_Helper_Form_Element_Select(
+    'llmIncludeCategories',
+    array('1' => _t('包含'), '0' => _t('不包含')),
+    '1',
+    _t('包含分类列表'),
+    _t('在 LLM 页面输出分类入口')
+  );
+  $form->addInput($llmIncludeCategories);
+
+  $llmIncludePages = new Typecho_Widget_Helper_Form_Element_Select(
+    'llmIncludePages',
+    array('1' => _t('包含'), '0' => _t('不包含')),
+    '1',
+    _t('包含独立页面'),
+    _t('在 LLM 页面输出 Typecho 独立页面入口')
+  );
+  $form->addInput($llmIncludePages);
+
+  $llmFeedUrl = new Typecho_Widget_Helper_Form_Element_Text(
+    'llmFeedUrl',
+    NULL,
+    '/feed/',
+    _t('RSS 地址'),
+    _t('输出到 LLM 页面的 RSS 地址，留空则不显示')
+  );
+  $form->addInput($llmFeedUrl);
+
+  $llmSitemapUrl = new Typecho_Widget_Helper_Form_Element_Text(
+    'llmSitemapUrl',
+    NULL,
+    '/sitemap.xml',
+    _t('站点地图地址'),
+    _t('输出到 LLM 页面的 Sitemap 地址，留空则不显示')
+  );
+  $form->addInput($llmSitemapUrl);
 
   // ===== 外观样式 =====
   $styleTitle = new Typecho_Widget_Helper_Layout();
@@ -264,6 +397,15 @@ function themeConfig($form) {
   );
   $form->addInput($analyticsCode);
 
+  $enableVisitStats = new Typecho_Widget_Helper_Form_Element_Select(
+    'enableVisitStats',
+    array('1' => _t('启用'), '0' => _t('关闭')),
+    '1',
+    _t('访问统计'),
+    _t('控制页脚总访问 / 今日访问统计。关闭后不会创建统计表、启动 Session 或写入统计 Cookie')
+  );
+  $form->addInput($enableVisitStats);
+
   $siteVisits = new Typecho_Widget_Helper_Form_Element_Text(
     'siteVisits',
     NULL,
@@ -340,6 +482,976 @@ function themeConfig($form) {
     _t('填写 RSS 订阅地址（如 /feed/ 或 https://example.com/rss.xml），留空则不显示 RSS 图标')
   );
   $form->addInput($socialRss);
+
+  $llmIndexUrl = new Typecho_Widget_Helper_Form_Element_Text(
+    'llmIndexUrl',
+    NULL,
+    '',
+    _t('LLM 页面地址'),
+    _t('填写当前站点的 LLM 内容出口地址，支持站内相对地址或完整 URL。填写后会像 RSS 一样在 head 和页脚输出发现入口')
+  );
+  $form->addInput($llmIndexUrl);
+}
+
+function printerPaperOptionValue($options, $name, $default = '') {
+  if (!$options) {
+    return $default;
+  }
+
+  if (is_array($options) && array_key_exists($name, $options)) {
+    return $options[$name] === null ? $default : $options[$name];
+  }
+
+  if ($options instanceof ArrayAccess && isset($options[$name])) {
+    return $options[$name] === null ? $default : $options[$name];
+  }
+
+  if (is_object($options)) {
+    if (isset($options->$name)) {
+      return $options->$name === null ? $default : $options->$name;
+    }
+
+    if (method_exists($options, '__get')) {
+      try {
+        $value = $options->__get($name);
+        return $value === null ? $default : $value;
+      } catch (Exception $e) {
+        return $default;
+      }
+    }
+
+    if (method_exists($options, $name)) {
+      try {
+        ob_start();
+        $result = $options->$name();
+        $output = ob_get_clean();
+        if ($output !== '') {
+          return $output;
+        }
+        return $result === null ? $default : $result;
+      } catch (Exception $e) {
+        if (ob_get_level() > 0) {
+          ob_end_clean();
+        }
+        return $default;
+      }
+    }
+  }
+
+  return $default;
+}
+
+function printerPaperGetOptions($fallback = null) {
+  if (class_exists('Helper') && method_exists('Helper', 'options')) {
+    try {
+      $options = Helper::options();
+      if ($options) {
+        return $options;
+      }
+    } catch (Exception $e) {
+      // Fall back to the current archive options below.
+    }
+  }
+
+  return $fallback;
+}
+
+function printerPaperIsVisitStatsEnabled($options = null) {
+  $options = printerPaperGetOptions($options);
+  return (string) printerPaperOptionValue($options, 'enableVisitStats', '1') !== '0';
+}
+
+function printerPaperEnsureVisitStatsSession() {
+  if (function_exists('session_status') && session_status() !== PHP_SESSION_NONE) {
+    return;
+  }
+
+  if (!function_exists('session_status') && session_id() !== '') {
+    return;
+  }
+
+  ini_set('session.cookie_httponly', 1);
+  ini_set('session.use_only_cookies', 1);
+  ini_set('session.cookie_secure', isset($_SERVER['HTTPS']) ? 1 : 0);
+  @session_start();
+}
+
+function printerPaperSendVisitStatsNoCacheHeaders() {
+  if (headers_sent()) {
+    return;
+  }
+
+  header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+  header('Cache-Control: post-check=0, pre-check=0', false);
+  header('Pragma: no-cache');
+  header('Expires: 0');
+}
+
+function printerPaperSanitizeWebUrl($url, $siteUrl = '', $allowRelative = true) {
+  $url = trim((string) $url);
+  if ($url === '') {
+    return '';
+  }
+
+  if (preg_match('/[\x00-\x1F\x7F<>"\']/u', $url)) {
+    return '';
+  }
+
+  if (preg_match('/^https?:\/\//i', $url)) {
+    return $url;
+  }
+
+  if (strpos($url, '//') === 0) {
+    $scheme = preg_match('/^https:\/\//i', (string) $siteUrl) ? 'https:' : 'http:';
+    return $scheme . $url;
+  }
+
+  if (!$allowRelative) {
+    return '';
+  }
+
+  if ($url[0] === '/') {
+    return printerPaperAbsoluteUrl($url, $siteUrl);
+  }
+
+  if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+    return '';
+  }
+
+  return printerPaperAbsoluteUrl($url, $siteUrl);
+}
+
+function printerPaperSanitizeLinkUrl($url, $siteUrl = '', $allowRelative = true) {
+  $url = trim((string) $url);
+  if ($url === '') {
+    return '';
+  }
+
+  if (preg_match('/[\x00-\x1F\x7F<>"\']/u', $url)) {
+    return '';
+  }
+
+  if (preg_match('/^https?:\/\//i', $url)) {
+    return $url;
+  }
+
+  if (strpos($url, '//') === 0) {
+    $scheme = preg_match('/^https:\/\//i', (string) $siteUrl) ? 'https:' : 'http:';
+    return $scheme . $url;
+  }
+
+  if (!$allowRelative) {
+    return '';
+  }
+
+  if (preg_match('/^[a-z][a-z0-9+.-]*:/i', $url)) {
+    return '';
+  }
+
+  return $url;
+}
+
+function printerPaperCssUrlValue($url, $siteUrl = '') {
+  $url = printerPaperSanitizeWebUrl($url, $siteUrl, true);
+  if ($url === '') {
+    return '';
+  }
+
+  return 'url("' . addcslashes($url, "\\\"\n\r\f") . '")';
+}
+
+function printerPaperPlainText($value, $limit = 0) {
+  $text = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+  $text = preg_replace('/\s+/u', ' ', $text);
+  $text = trim($text);
+
+  if ($limit > 0) {
+    if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+      if (mb_strlen($text, 'UTF-8') > $limit) {
+        return rtrim(mb_substr($text, 0, $limit, 'UTF-8')) . '...';
+      }
+    } elseif (strlen($text) > $limit) {
+      return rtrim(substr($text, 0, $limit)) . '...';
+    }
+  }
+
+  return $text;
+}
+
+function printerPaperMarkdownText($value, $limit = 0) {
+  $text = printerPaperPlainText($value, $limit);
+  $text = str_replace(array("\r", "\n"), ' ', $text);
+  return trim($text);
+}
+
+function printerPaperMarkdownMultiline($value) {
+  $text = html_entity_decode(strip_tags((string) $value), ENT_QUOTES, 'UTF-8');
+  $text = str_replace("\r\n", "\n", $text);
+  $text = str_replace("\r", "\n", $text);
+  $lines = array();
+  foreach (explode("\n", $text) as $line) {
+    $line = trim(preg_replace('/\s+/u', ' ', $line));
+    if ($line !== '') {
+      $lines[] = $line;
+    }
+  }
+  return $lines;
+}
+
+function printerPaperMarkdownLink($label, $url) {
+  $label = str_replace(array('[', ']'), array('\\[', '\\]'), printerPaperMarkdownText($label));
+  $url = trim((string) $url);
+  if ($label === '') {
+    $label = $url;
+  }
+  return '[' . $label . '](' . str_replace(')', '%29', $url) . ')';
+}
+
+function printerPaperAbsoluteUrl($url, $siteUrl = '') {
+  $url = trim((string) $url);
+  if ($url === '') {
+    return '';
+  }
+
+  if (preg_match('/^https?:\/\//i', $url)) {
+    return $url;
+  }
+
+  $siteUrl = trim((string) $siteUrl);
+  if ($siteUrl === '') {
+    return '';
+  }
+
+  if (strpos($url, '//') === 0) {
+    $scheme = preg_match('/^https:\/\//i', $siteUrl) ? 'https:' : 'http:';
+    return $scheme . $url;
+  }
+
+  if ($url[0] === '/') {
+    return rtrim($siteUrl, '/') . $url;
+  }
+
+  return rtrim($siteUrl, '/') . '/' . ltrim($url, '/');
+}
+
+function printerPaperLlmUrl($url, $siteUrl = '') {
+  $url = trim((string) $url);
+  if ($url === '') {
+    return '';
+  }
+
+  return printerPaperAbsoluteUrl($url, $siteUrl);
+}
+
+function printerPaperCurrentUrl($archive, $siteUrl = '') {
+  if ($archive && isset($archive->permalink) && trim((string) $archive->permalink) !== '') {
+    return (string) $archive->permalink;
+  }
+
+  if ($archive && method_exists($archive, 'permalink')) {
+    ob_start();
+    $archive->permalink();
+    $url = trim(ob_get_clean());
+    if ($url !== '') {
+      return $url;
+    }
+  }
+
+  return $siteUrl;
+}
+
+function printerPaperPostTitle($archive) {
+  if ($archive && isset($archive->title)) {
+    return printerPaperPlainText($archive->title, 110);
+  }
+
+  if ($archive && method_exists($archive, 'title')) {
+    ob_start();
+    $archive->title();
+    return printerPaperPlainText(ob_get_clean(), 110);
+  }
+
+  return '';
+}
+
+function printerPaperPostText($archive) {
+  if ($archive && isset($archive->text)) {
+    return (string) $archive->text;
+  }
+
+  if ($archive && isset($archive->content)) {
+    return (string) $archive->content;
+  }
+
+  return '';
+}
+
+function printerPaperPostAuthorName($archive, $fallback = '') {
+  if ($archive && isset($archive->author) && is_object($archive->author)) {
+    if (isset($archive->author->screenName) && trim((string) $archive->author->screenName) !== '') {
+      return printerPaperPlainText($archive->author->screenName, 80);
+    }
+    if (isset($archive->author->name) && trim((string) $archive->author->name) !== '') {
+      return printerPaperPlainText($archive->author->name, 80);
+    }
+  }
+
+  if ($archive && method_exists($archive, 'author')) {
+    ob_start();
+    $archive->author();
+    $author = printerPaperPlainText(ob_get_clean(), 80);
+    if ($author !== '') {
+      return $author;
+    }
+  }
+
+  return printerPaperPlainText($fallback, 80);
+}
+
+function printerPaperPostCategories($archive) {
+  if (!$archive || !method_exists($archive, 'category')) {
+    return array();
+  }
+
+  ob_start();
+  $archive->category(',');
+  $categoryText = printerPaperPlainText(ob_get_clean());
+  if ($categoryText === '') {
+    return array();
+  }
+
+  $items = array();
+  foreach (explode(',', $categoryText) as $category) {
+    $category = trim($category);
+    if ($category !== '') {
+      $items[] = $category;
+    }
+  }
+
+  return array_values(array_unique($items));
+}
+
+function printerPaperFirstImageUrl($html, $siteUrl = '') {
+  if (!preg_match('/<img\b[^>]*\bsrc=["\']([^"\']+)["\']/i', (string) $html, $matches)) {
+    return '';
+  }
+
+  return printerPaperAbsoluteUrl($matches[1], $siteUrl);
+}
+
+function printerPaperSchemaPublisher($options, $siteUrl = '') {
+  $publisherName = printerPaperPlainText(printerPaperOptionValue($options, 'schemaPublisherName'));
+  if ($publisherName === '') {
+    $publisherName = printerPaperPlainText(printerPaperOptionValue($options, 'logoText'));
+  }
+  if ($publisherName === '') {
+    $publisherName = printerPaperPlainText(printerPaperOptionValue($options, 'title'));
+  }
+
+  $logoUrl = printerPaperOptionValue($options, 'schemaPublisherLogo');
+  if (trim((string) $logoUrl) === '') {
+    $logoUrl = printerPaperOptionValue($options, 'logoUrl');
+  }
+  $logoUrl = printerPaperAbsoluteUrl($logoUrl, $siteUrl);
+
+  $publisher = array(
+    '@type' => 'Organization',
+    'name' => $publisherName
+  );
+
+  if ($logoUrl !== '') {
+    $publisher['logo'] = array(
+      '@type' => 'ImageObject',
+      'url' => $logoUrl
+    );
+  }
+
+  return $publisher;
+}
+
+function printerPaperSchemaSameAs($options) {
+  $links = array(
+    printerPaperOptionValue($options, 'socialGithub'),
+    printerPaperOptionValue($options, 'socialTwitter'),
+    printerPaperOptionValue($options, 'socialWeibo')
+  );
+
+  $sameAs = array();
+  foreach ($links as $link) {
+    $link = trim((string) $link);
+    if ($link !== '' && preg_match('/^https?:\/\//i', $link)) {
+      $sameAs[] = $link;
+    }
+  }
+
+  return array_values(array_unique($sameAs));
+}
+
+function printerPaperLlmEnabled($options) {
+  return (string) printerPaperOptionValue($options, 'enableLlmIndex', '1') !== '0';
+}
+
+function printerPaperLlmIndexUrl($options) {
+  $siteUrl = printerPaperOptionValue($options, 'siteUrl');
+  $url = printerPaperOptionValue($options, 'llmIndexUrl');
+  return printerPaperSanitizeLinkUrl($url, $siteUrl, true);
+}
+
+function printerPaperLlmLimit($options) {
+  $limit = (int) printerPaperOptionValue($options, 'llmRecentPostsLimit', 20);
+  if ($limit < 1) {
+    return 20;
+  }
+  if ($limit > 100) {
+    return 100;
+  }
+  return $limit;
+}
+
+function printerPaperLlmRecentPosts($limit) {
+  $db = Typecho_Db::get();
+  $prefix = $db->getPrefix();
+  $select = $db->select('cid, title, slug, created, modified, text')
+    ->from($prefix . 'contents')
+    ->where('type = ?', 'post')
+    ->where('status = ?', 'publish')
+    ->where('created <= ?', time())
+    ->order('created', Typecho_Db::SORT_DESC)
+    ->limit($limit);
+
+  return $db->fetchAll($select);
+}
+
+function printerPaperLlmPages() {
+  $db = Typecho_Db::get();
+  $prefix = $db->getPrefix();
+  $select = $db->select('cid, title, slug, created, modified, text')
+    ->from($prefix . 'contents')
+    ->where('type = ?', 'page')
+    ->where('status = ?', 'publish')
+    ->where('created <= ?', time())
+    ->order('order', 'ASC');
+
+  return $db->fetchAll($select);
+}
+
+function printerPaperLlmCategories() {
+  $db = Typecho_Db::get();
+  $prefix = $db->getPrefix();
+  $select = $db->select('mid, name, slug, count, description')
+    ->from($prefix . 'metas')
+    ->where('type = ?', 'category')
+    ->order('order', 'ASC');
+
+  return $db->fetchAll($select);
+}
+
+function printerPaperWidgetPermalink($widgetName, $params, $request, $options) {
+  if (!class_exists('Typecho_Widget')) {
+    return '';
+  }
+
+  $bufferLevel = ob_get_level();
+  try {
+    $widget = Typecho_Widget::widget($widgetName, $params, $request);
+    if (method_exists($widget, 'have') && method_exists($widget, 'next') && $widget->have()) {
+      $widget->next();
+    }
+    if (isset($widget->permalink) && trim((string) $widget->permalink) !== '') {
+      return printerPaperAbsoluteUrl($widget->permalink, printerPaperOptionValue($options, 'siteUrl'));
+    }
+    if (method_exists($widget, 'permalink')) {
+      ob_start();
+      $widget->permalink();
+      $url = trim(ob_get_clean());
+      if ($url !== '') {
+        return printerPaperAbsoluteUrl($url, printerPaperOptionValue($options, 'siteUrl'));
+      }
+    }
+  } catch (Exception $e) {
+    while (ob_get_level() > $bufferLevel) {
+      ob_end_clean();
+    }
+    return '';
+  }
+
+  return '';
+}
+
+function printerPaperTypechoRouteUrl($route, $params, $options) {
+  if (!class_exists('Typecho_Router')) {
+    return '';
+  }
+
+  try {
+    $index = printerPaperOptionValue($options, 'index');
+    $url = Typecho_Router::url($route, $params, $index);
+    if (preg_match('/\{[a-zA-Z0-9_]+\}/', (string) $url)) {
+      return '';
+    }
+    return printerPaperAbsoluteUrl($url, printerPaperOptionValue($options, 'siteUrl'));
+  } catch (Exception $e) {
+    return '';
+  }
+}
+
+function printerPaperLlmDateRouteParams($created) {
+  $created = (int) $created;
+  if ($created <= 0) {
+    return array();
+  }
+
+  return array(
+    'year' => date('Y', $created),
+    'month' => date('m', $created),
+    'day' => date('d', $created)
+  );
+}
+
+function printerPaperLlmPostUrl($row, $options) {
+  $siteUrl = rtrim((string) printerPaperOptionValue($options, 'siteUrl'), '/');
+  $slug = isset($row['slug']) ? trim((string) $row['slug']) : '';
+  $cid = isset($row['cid']) ? (int) $row['cid'] : 0;
+  $widgetUrl = printerPaperWidgetPermalink(
+    'Widget_Archive@printer_llm_post_' . $cid,
+    'pageSize=1&type=post',
+    'cid=' . $cid,
+    $options
+  );
+
+  if ($widgetUrl !== '') {
+    return $widgetUrl;
+  }
+
+  $routeParams = array_merge(array(
+    'cid' => $cid,
+    'slug' => $slug
+  ), printerPaperLlmDateRouteParams(isset($row['created']) ? $row['created'] : 0));
+  $routeUrl = printerPaperTypechoRouteUrl('post', $routeParams, $options);
+
+  if ($routeUrl !== '') {
+    return $routeUrl;
+  }
+
+  return $siteUrl . '/?p=' . $cid;
+}
+
+function printerPaperLlmPageUrl($row, $options) {
+  $siteUrl = rtrim((string) printerPaperOptionValue($options, 'siteUrl'), '/');
+  $slug = isset($row['slug']) ? trim((string) $row['slug']) : '';
+  $cid = isset($row['cid']) ? (int) $row['cid'] : 0;
+  $widgetUrl = printerPaperWidgetPermalink(
+    'Widget_Archive@printer_llm_page_' . $cid,
+    'pageSize=1&type=page',
+    'cid=' . $cid,
+    $options
+  );
+
+  if ($widgetUrl !== '') {
+    return $widgetUrl;
+  }
+
+  $routeUrl = printerPaperTypechoRouteUrl('page', array(
+    'slug' => $slug
+  ), $options);
+
+  if ($routeUrl !== '') {
+    return $routeUrl;
+  }
+
+  return $siteUrl . '/?page_id=' . $cid;
+}
+
+function printerPaperLlmCategoryUrl($row, $options) {
+  $siteUrl = rtrim((string) printerPaperOptionValue($options, 'siteUrl'), '/');
+  $slug = isset($row['slug']) ? trim((string) $row['slug']) : '';
+  $mid = isset($row['mid']) ? (int) $row['mid'] : 0;
+  $widgetUrl = '';
+
+  if ($mid > 0 && class_exists('Typecho_Widget')) {
+    $bufferLevel = ob_get_level();
+    try {
+      $categories = Typecho_Widget::widget('Widget_Metas_Category_List@printer_llm_category_list');
+      while ($categories->next()) {
+        if ((int) $categories->mid === $mid) {
+          ob_start();
+          $categories->permalink();
+          $widgetUrl = trim(ob_get_clean());
+          break;
+        }
+      }
+      if ($widgetUrl !== '') {
+        return printerPaperAbsoluteUrl($widgetUrl, printerPaperOptionValue($options, 'siteUrl'));
+      }
+    } catch (Exception $e) {
+      while (ob_get_level() > $bufferLevel) {
+        ob_end_clean();
+      }
+    }
+  }
+
+  $routeUrl = printerPaperTypechoRouteUrl('category', array(
+    'slug' => $slug
+  ), $options);
+
+  if ($routeUrl !== '') {
+    return $routeUrl;
+  }
+
+  if ($slug === '') {
+    return $siteUrl . '/';
+  }
+  return $siteUrl . '/?category=' . rawurlencode($slug);
+}
+
+function printerPaperLlmExcerpt($text, $mode = 'summary') {
+  if ($mode === 'link') {
+    return '';
+  }
+
+  $limit = $mode === 'full' ? 600 : 180;
+  return printerPaperMarkdownText($text, $limit);
+}
+
+function printerPaperRenderLlmIndex($archive) {
+  $options = printerPaperGetOptions(isset($archive->options) ? $archive->options : null);
+  if (!printerPaperLlmEnabled($options)) {
+    header('Content-Type: text/plain; charset=UTF-8');
+    echo "# LLM index disabled\n\nThis machine-readable index is currently disabled by the site owner.\n";
+    return;
+  }
+
+  header('Content-Type: text/markdown; charset=UTF-8');
+
+  $siteUrl = rtrim((string) printerPaperOptionValue($options, 'siteUrl'), '/') . '/';
+  $siteName = printerPaperMarkdownText(printerPaperOptionValue($options, 'logoText'));
+  if ($siteName === '') {
+    $siteName = printerPaperMarkdownText(printerPaperOptionValue($options, 'title'));
+  }
+
+  $title = printerPaperMarkdownText(printerPaperOptionValue($options, 'llmIndexTitle', 'AI Readable Index'));
+  if ($title === '') {
+    $title = 'AI Readable Index';
+  }
+
+  $summary = printerPaperMarkdownText(printerPaperOptionValue($options, 'aiSiteSummary'), 500);
+  if ($summary === '') {
+    $summary = printerPaperMarkdownText(printerPaperOptionValue($options, 'description'), 500);
+  }
+
+  $feedUrl = printerPaperLlmUrl(printerPaperOptionValue($options, 'llmFeedUrl', '/feed/'), $siteUrl);
+  $sitemapUrl = printerPaperLlmUrl(printerPaperOptionValue($options, 'llmSitemapUrl', '/sitemap.xml'), $siteUrl);
+  $mode = printerPaperOptionValue($options, 'llmPostOutputMode', 'summary');
+  $mode = in_array($mode, array('link', 'summary', 'full'), true) ? $mode : 'summary';
+
+  echo '# ' . $title . "\n\n";
+  echo '> Machine-readable index for AI agents and crawlers.' . "\n";
+  echo '> Site: ' . $siteName . "\n";
+  echo '> Canonical URL: ' . $siteUrl . "\n";
+  echo '> Updated: ' . date('c') . "\n\n";
+
+  echo "## Abstract\n\n";
+  echo ($summary !== '' ? $summary : 'No site summary has been provided yet.') . "\n\n";
+
+  echo "## How to read this site\n\n";
+  $instructions = printerPaperMarkdownMultiline(printerPaperOptionValue($options, 'llmReadInstructions'));
+  if (empty($instructions)) {
+    $instructions = array(
+      'Start with this index to understand the site scope and preferred source order.',
+      'Use RSS or Sitemap for discovery, then read individual article URLs for source details.',
+      'When citing content, include the original title and canonical URL.',
+      'Do not treat navigation labels, random-reading links, comments, or visit statistics as primary content.'
+    );
+  }
+  foreach ($instructions as $idx => $line) {
+    echo ($idx + 1) . '. ' . $line . "\n";
+  }
+  echo "\n";
+
+  $scopeNotes = printerPaperMarkdownMultiline(printerPaperOptionValue($options, 'llmScopeNotes'));
+  if (!empty($scopeNotes)) {
+    echo "## Good uses\n\n";
+    foreach ($scopeNotes as $line) {
+      echo '- ' . $line . "\n";
+    }
+    echo "\n";
+  }
+
+  echo "## Recommended sources\n\n";
+  echo '- ' . printerPaperMarkdownLink('Home', $siteUrl) . "\n";
+  if ($feedUrl !== '') {
+    echo '- ' . printerPaperMarkdownLink('RSS', $feedUrl) . "\n";
+  }
+  if ($sitemapUrl !== '') {
+    echo '- ' . printerPaperMarkdownLink('Sitemap', $sitemapUrl) . "\n";
+  }
+  echo "\n";
+
+  if ((string) printerPaperOptionValue($options, 'llmIncludeCategories', '1') !== '0') {
+    echo "## Categories\n\n";
+    $categories = printerPaperLlmCategories();
+    if (empty($categories)) {
+      echo '- No public categories found.' . "\n";
+    } else {
+      foreach ($categories as $category) {
+        $name = printerPaperMarkdownText(isset($category['name']) ? $category['name'] : '');
+        $url = printerPaperLlmCategoryUrl($category, $options);
+        $count = isset($category['count']) ? (int) $category['count'] : 0;
+        $desc = printerPaperMarkdownText(isset($category['description']) ? $category['description'] : '', 140);
+        echo '- ' . printerPaperMarkdownLink($name, $url) . ' (' . $count . ' posts)';
+        if ($desc !== '') {
+          echo ': ' . $desc;
+        }
+        echo "\n";
+      }
+    }
+    echo "\n";
+  }
+
+  echo "## Recent posts\n\n";
+  $posts = printerPaperLlmRecentPosts(printerPaperLlmLimit($options));
+  if (empty($posts)) {
+    echo '- No public posts found.' . "\n";
+  } else {
+    foreach ($posts as $post) {
+      $title = printerPaperMarkdownText(isset($post['title']) ? $post['title'] : '');
+      $url = printerPaperLlmPostUrl($post, $options);
+      $date = isset($post['created']) ? date('Y-m-d', (int) $post['created']) : '';
+      $excerpt = printerPaperLlmExcerpt(isset($post['text']) ? $post['text'] : '', $mode);
+      echo '- ' . printerPaperMarkdownLink($title, $url);
+      if ($date !== '') {
+        echo ' — ' . $date;
+      }
+      if ($excerpt !== '') {
+        echo ': ' . $excerpt;
+      }
+      echo "\n";
+    }
+  }
+  echo "\n";
+
+  if ((string) printerPaperOptionValue($options, 'llmIncludePages', '1') !== '0') {
+    echo "## Pages\n\n";
+    $pages = printerPaperLlmPages();
+    if (empty($pages)) {
+      echo '- No public pages found.' . "\n";
+    } else {
+      foreach ($pages as $page) {
+        $title = printerPaperMarkdownText(isset($page['title']) ? $page['title'] : '');
+        $url = printerPaperLlmPageUrl($page, $options);
+        $excerpt = printerPaperMarkdownText(isset($page['text']) ? $page['text'] : '', 160);
+        echo '- ' . printerPaperMarkdownLink($title, $url);
+        if ($excerpt !== '') {
+          echo ': ' . $excerpt;
+        }
+        echo "\n";
+      }
+    }
+    echo "\n";
+  }
+
+  echo "## What's not served\n\n";
+  $notServed = printerPaperMarkdownMultiline(printerPaperOptionValue($options, 'llmNotServedNotes'));
+  if (empty($notServed)) {
+    $notServed = array(
+      'Admin pages, login screens, and private drafts are not part of this public index.',
+      'Comments are not treated as primary factual sources.',
+      'Dynamic visit statistics, navigation labels, and random-reading controls are not content sources.',
+      'Search result pages and pagination pages should be used only for discovery, not citation.'
+    );
+  }
+  foreach ($notServed as $line) {
+    echo '- ' . $line . "\n";
+  }
+  echo "\n";
+
+  echo "## Citation / Usage\n\n";
+  $citation = printerPaperMarkdownMultiline(printerPaperOptionValue($options, 'llmCitationNotes'));
+  if (empty($citation)) {
+    $citation = array('When using or citing this site, include the article title and original URL.');
+  }
+  foreach ($citation as $line) {
+    echo '- ' . $line . "\n";
+  }
+}
+
+function printerPaperCleanSchemaData($data) {
+  if (!is_array($data)) {
+    return $data;
+  }
+
+  $clean = array();
+  foreach ($data as $key => $value) {
+    if (is_array($value)) {
+      $value = printerPaperCleanSchemaData($value);
+      if (empty($value)) {
+        continue;
+      }
+    } elseif ($value === null || $value === '') {
+      continue;
+    }
+    $clean[$key] = $value;
+  }
+
+  return $clean;
+}
+
+function printerPaperBuildHomeSchema($archive, $options, $siteUrl, $siteName, $description, $publisher) {
+  $sameAs = printerPaperSchemaSameAs($options);
+  $website = array(
+    '@type' => 'WebSite',
+    '@id' => rtrim($siteUrl, '/') . '/#website',
+    'url' => $siteUrl,
+    'name' => $siteName,
+    'description' => $description,
+    'inLanguage' => 'zh-CN',
+    'publisher' => array('@id' => rtrim($siteUrl, '/') . '/#publisher'),
+    'potentialAction' => array(
+      '@type' => 'SearchAction',
+      'target' => rtrim($siteUrl, '/') . '/?s={search_term_string}',
+      'query-input' => 'required name=search_term_string'
+    )
+  );
+
+  if (!empty($sameAs)) {
+    $website['sameAs'] = $sameAs;
+  }
+
+  $publisher['@id'] = rtrim($siteUrl, '/') . '/#publisher';
+
+  return array(
+    '@context' => 'https://schema.org',
+    '@graph' => array(
+      $publisher,
+      $website,
+      array(
+        '@type' => 'Blog',
+        '@id' => rtrim($siteUrl, '/') . '/#blog',
+        'url' => $siteUrl,
+        'name' => $siteName,
+        'description' => $description,
+        'inLanguage' => 'zh-CN',
+        'publisher' => array('@id' => rtrim($siteUrl, '/') . '/#publisher'),
+        'isPartOf' => array('@id' => rtrim($siteUrl, '/') . '/#website')
+      )
+    )
+  );
+}
+
+function printerPaperBuildPostSchema($archive, $options, $siteUrl, $siteName, $description, $publisher) {
+  $postUrl = printerPaperCurrentUrl($archive, $siteUrl);
+  $postText = printerPaperPostText($archive);
+  $postDescription = printerPaperPlainText($postText, 180);
+  if ($postDescription === '') {
+    $postDescription = $description;
+  }
+
+  $created = isset($archive->created) ? (int) $archive->created : 0;
+  $modified = isset($archive->modified) ? (int) $archive->modified : 0;
+  if ($modified <= 0) {
+    $modified = $created;
+  }
+
+  $imageUrl = printerPaperFirstImageUrl($postText, $siteUrl);
+  if ($imageUrl === '') {
+    $imageUrl = printerPaperAbsoluteUrl(printerPaperOptionValue($options, 'logoUrl'), $siteUrl);
+  }
+
+  $categories = printerPaperPostCategories($archive);
+  $schema = array(
+    '@context' => 'https://schema.org',
+    '@type' => 'BlogPosting',
+    '@id' => rtrim($postUrl, '/') . '#blogposting',
+    'mainEntityOfPage' => array(
+      '@type' => 'WebPage',
+      '@id' => $postUrl
+    ),
+    'headline' => printerPaperPostTitle($archive),
+    'description' => $postDescription,
+    'url' => $postUrl,
+    'inLanguage' => 'zh-CN',
+    'isPartOf' => array(
+      '@type' => 'Blog',
+      'name' => $siteName,
+      'url' => $siteUrl
+    ),
+    'author' => array(
+      '@type' => 'Person',
+      'name' => printerPaperPostAuthorName($archive, $siteName)
+    ),
+    'publisher' => $publisher,
+    'image' => $imageUrl,
+    'datePublished' => $created > 0 ? date('c', $created) : '',
+    'dateModified' => $modified > 0 ? date('c', $modified) : '',
+    'articleSection' => $categories,
+    'keywords' => $categories
+  );
+
+  return printerPaperCleanSchemaData($schema);
+}
+
+function printerPaperBuildStructuredData($archive) {
+  if (!$archive) {
+    return array();
+  }
+
+  $options = printerPaperGetOptions(isset($archive->options) ? $archive->options : null);
+  if (!$options) {
+    return array();
+  }
+
+  if ((string) printerPaperOptionValue($options, 'enableStructuredData', '1') === '0') {
+    return array();
+  }
+
+  $siteUrl = printerPaperAbsoluteUrl(printerPaperOptionValue($options, 'siteUrl'), printerPaperOptionValue($options, 'siteUrl'));
+  if ($siteUrl === '') {
+    $siteUrl = printerPaperOptionValue($options, 'siteUrl');
+  }
+
+  $siteName = printerPaperPlainText(printerPaperOptionValue($options, 'logoText'));
+  if ($siteName === '') {
+    $siteName = printerPaperPlainText(printerPaperOptionValue($options, 'title'));
+  }
+
+  $description = printerPaperPlainText(printerPaperOptionValue($options, 'aiSiteSummary'), 240);
+  if ($description === '') {
+    $description = printerPaperPlainText(printerPaperOptionValue($options, 'subTitle'), 240);
+  }
+  if ($description === '') {
+    $description = printerPaperPlainText(printerPaperOptionValue($options, 'description'), 240);
+  }
+
+  $publisher = printerPaperSchemaPublisher($options, $siteUrl);
+
+  if ($archive->is('index')) {
+    return printerPaperCleanSchemaData(printerPaperBuildHomeSchema($archive, $options, $siteUrl, $siteName, $description, $publisher));
+  }
+
+  if ($archive->is('post')) {
+    return printerPaperBuildPostSchema($archive, $options, $siteUrl, $siteName, $description, $publisher);
+  }
+
+  return array();
+}
+
+function printerPaperRenderStructuredData($archive) {
+  $schema = printerPaperBuildStructuredData($archive);
+  if (empty($schema)) {
+    return;
+  }
+
+  $flags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+  if (defined('JSON_PRETTY_PRINT')) {
+    $flags = $flags | JSON_PRETTY_PRINT;
+  }
+
+  $json = json_encode($schema, $flags);
+  if ($json === false || $json === '') {
+    return;
+  }
+
+  echo "\n  <script type=\"application/ld+json\">\n" . $json . "\n  </script>\n";
 }
 
 function printerPaperNormalizeFontFamily($input) {
@@ -463,6 +1575,18 @@ function printerPaperGetRandomCids($count = 4, $categorySlugsText = '') {
  * 在主题激活时调用，创建统计数据表
  */
 function printerPaperInitVisitStatsTable() {
+  static $initialized = false;
+  static $available = false;
+
+  if ($initialized) {
+    return $available;
+  }
+
+  $initialized = true;
+  if (!printerPaperIsVisitStatsEnabled()) {
+    return false;
+  }
+
   $db = Typecho_Db::get();
   $prefix = $db->getPrefix();
   
@@ -472,29 +1596,37 @@ function printerPaperInitVisitStatsTable() {
   try {
     // 尝试查询表，如果不存在会抛出异常
     $db->fetchRow($db->select('COUNT(*) AS count')->from($tableName));
+    $available = true;
   } catch (Exception $e) {
-    // 表不存在，创建表
-    $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
-      `id` INT(11) NOT NULL AUTO_INCREMENT,
-      `stat_date` DATE NOT NULL,
-      `total_visits` INT(11) NOT NULL DEFAULT 0,
-      `today_visits` INT(11) NOT NULL DEFAULT 0,
-      `last_updated` INT(11) NOT NULL,
-      PRIMARY KEY (`id`),
-      UNIQUE KEY `stat_date` (`stat_date`)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-    
-    $db->query($sql);
-    
-    // 插入初始记录
-    $today = date('Y-m-d');
-    $db->query($db->insert($tableName)->rows(array(
-      'stat_date' => $today,
-      'total_visits' => 0,
-      'today_visits' => 0,
-      'last_updated' => time()
-    )));
+    try {
+      // 表不存在，创建表
+      $sql = "CREATE TABLE IF NOT EXISTS `{$tableName}` (
+        `id` INT(11) NOT NULL AUTO_INCREMENT,
+        `stat_date` DATE NOT NULL,
+        `total_visits` INT(11) NOT NULL DEFAULT 0,
+        `today_visits` INT(11) NOT NULL DEFAULT 0,
+        `last_updated` INT(11) NOT NULL,
+        PRIMARY KEY (`id`),
+        UNIQUE KEY `stat_date` (`stat_date`)
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
+
+      $db->query($sql);
+
+      // 插入初始记录
+      $today = date('Y-m-d');
+      $db->query($db->insert($tableName)->rows(array(
+        'stat_date' => $today,
+        'total_visits' => 0,
+        'today_visits' => 0,
+        'last_updated' => time()
+      )));
+      $available = true;
+    } catch (Exception $createException) {
+      $available = false;
+    }
   }
+
+  return $available;
 }
 
 /**
@@ -503,6 +1635,19 @@ function printerPaperInitVisitStatsTable() {
  * 支持后台自定义基数，在此基础上继续累加
  */
 function printerPaperGetVisitStats() {
+  static $cachedStats = null;
+
+  if ($cachedStats !== null) {
+    return $cachedStats;
+  }
+
+  if (!printerPaperIsVisitStatsEnabled()) {
+    $cachedStats = array('total' => 0, 'today' => 0, 'date' => date('Y-m-d'), 'increment' => 0);
+    return $cachedStats;
+  }
+
+  printerPaperEnsureVisitStatsSession();
+
   $db = Typecho_Db::get();
   $prefix = $db->getPrefix();
   $tableName = $prefix . 'printer_visit_stats';
@@ -516,11 +1661,29 @@ function printerPaperGetVisitStats() {
   $today = date('Y-m-d');
   
   // 读取今日统计记录
-  $row = $db->fetchRow(
-    $db->select('*')->from($tableName)
-      ->where('stat_date = ?', $today)
-      ->limit(1)
-  );
+  try {
+    $row = $db->fetchRow(
+      $db->select('*')->from($tableName)
+        ->where('stat_date = ?', $today)
+        ->limit(1)
+    );
+  } catch (Exception $e) {
+    if (!printerPaperInitVisitStatsTable()) {
+      $cachedStats = array('total' => 0, 'today' => 0, 'date' => $today, 'increment' => 0);
+      return $cachedStats;
+    }
+
+    try {
+      $row = $db->fetchRow(
+        $db->select('*')->from($tableName)
+          ->where('stat_date = ?', $today)
+          ->limit(1)
+      );
+    } catch (Exception $retryException) {
+      $cachedStats = array('total' => 0, 'today' => 0, 'date' => $today, 'increment' => 0);
+      return $cachedStats;
+    }
+  }
   
   // 如果没有今日记录，说明是新的一天，创建新记录
   if (!$row) {
@@ -628,22 +1791,24 @@ function printerPaperGetVisitStats() {
     $debugInfo['action'] = 'counted';
     $debugInfo['new_cookie'] = $today . ':1';
     
-    return array(
+    $cachedStats = array(
       'total' => (int) $row['total_visits'] + $increment,
       'today' => (int) $row['today_visits'] + $increment,
       'date' => $today,
       'increment' => $increment
     );
+    return $cachedStats;
   }
   
   $debugInfo['action'] = 'skipped';
   
-  return array(
+  $cachedStats = array(
     'total' => (int) $row['total_visits'],
     'today' => (int) $row['today_visits'],
     'date' => $today,
     'increment' => $increment
   );
+  return $cachedStats;
 }
 
 /**
@@ -685,6 +1850,17 @@ function printerPaperFormatVisitCount($number) {
  * 使用数据库选项存储自定义基数，避免文件操作
  */
 function printerPaperGetFinalVisitStats() {
+  static $cachedFinalStats = null;
+
+  if ($cachedFinalStats !== null) {
+    return $cachedFinalStats;
+  }
+
+  if (!printerPaperIsVisitStatsEnabled()) {
+    $cachedFinalStats = array('total' => 0, 'today' => 0);
+    return $cachedFinalStats;
+  }
+
   $customTotal = printerPaperGetCustomVisits('total');
   $customToday = printerPaperGetCustomVisits('today');
   
@@ -729,12 +1905,14 @@ function printerPaperGetFinalVisitStats() {
       $options->printerLastBaseDate = $today;
     }
     
-    return array(
+    $cachedFinalStats = array(
       'total' => $finalTotal,
       'today' => $finalToday
     );
+    return $cachedFinalStats;
   }
   
   // 未设置自定义数据，直接返回自动统计
-  return $autoStats;
+  $cachedFinalStats = $autoStats;
+  return $cachedFinalStats;
 }

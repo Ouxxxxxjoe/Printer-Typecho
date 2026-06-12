@@ -1,3 +1,16 @@
+<?php
+  $printerOptions = function_exists('printerPaperGetOptions') ? printerPaperGetOptions($this->options) : $this->options;
+  $printerSiteUrl = function_exists('printerPaperOptionValue') ? printerPaperOptionValue($printerOptions, 'siteUrl') : '';
+  $printerVisitStatsEnabled = function_exists('printerPaperIsVisitStatsEnabled') ? printerPaperIsVisitStatsEnabled($printerOptions) : true;
+  if ($printerVisitStatsEnabled && function_exists('printerPaperSendVisitStatsNoCacheHeaders')) {
+    printerPaperSendVisitStatsNoCacheHeaders();
+  }
+  if ($printerVisitStatsEnabled && function_exists('printerPaperGetFinalVisitStats')) {
+    printerPaperGetFinalVisitStats();
+  }
+  $printerFaviconUrl = function_exists('printerPaperSanitizeWebUrl') ? printerPaperSanitizeWebUrl($this->options->faviconUrl, $printerSiteUrl, true) : trim((string) $this->options->faviconUrl);
+  $printerLogoUrl = function_exists('printerPaperSanitizeWebUrl') ? printerPaperSanitizeWebUrl($this->options->logoUrl, $printerSiteUrl, true) : trim((string) $this->options->logoUrl);
+?>
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
@@ -19,16 +32,12 @@
     'tag'       => _t('标签 %s 下的文章'),
     'author'    => _t('%s 发布的文章')
   ), '', ' - '); ?><?php $this->options->title(); ?></title>
-  <?php if ($this->options->faviconUrl): ?>
-    <link rel="icon" href="<?php $this->options->faviconUrl(); ?>">
+  <?php if ($printerFaviconUrl !== ''): ?>
+    <link rel="icon" href="<?php echo htmlspecialchars($printerFaviconUrl, ENT_QUOTES, 'UTF-8'); ?>">
   <?php endif; ?>
   <link rel="stylesheet" href="<?php $this->options->themeUrl('css/style.css'); ?>">
   <?php
-    $cnFontCssUrl = trim((string) $this->options->cnFontCssUrl);
-    // 只允许 http/https 协议，防止 javascript: 等伪协议注入
-    if ($cnFontCssUrl !== '' && !preg_match('/^https?:\/\//i', $cnFontCssUrl)) {
-      $cnFontCssUrl = '';
-    }
+    $cnFontCssUrl = function_exists('printerPaperSanitizeWebUrl') ? printerPaperSanitizeWebUrl($this->options->cnFontCssUrl, $printerSiteUrl, false) : trim((string) $this->options->cnFontCssUrl);
   ?>
   <?php if ($cnFontCssUrl !== ''): ?>
     <link rel="stylesheet" href="<?php echo htmlspecialchars($cnFontCssUrl, ENT_QUOTES, 'UTF-8'); ?>">
@@ -73,11 +82,7 @@
   <?php endif; ?>
   <?php
     // 自定义背景图设置
-    $customBgUrl = trim((string) $this->options->customBgUrl);
-    // 只允许 http/https 协议，防止 javascript: 等伪协议注入
-    if ($customBgUrl !== '' && !preg_match('/^https?:\/\//i', $customBgUrl)) {
-      $customBgUrl = '';
-    }
+    $customBgValue = function_exists('printerPaperCssUrlValue') ? printerPaperCssUrlValue($this->options->customBgUrl, $printerSiteUrl) : '';
     $customBgDarkOverlay = trim((string) $this->options->customBgDarkOverlay);
     if ($customBgDarkOverlay === '' || !is_numeric($customBgDarkOverlay)) {
       $customBgDarkOverlay = '0.65';
@@ -85,10 +90,10 @@
     // 限制范围 0-1
     $customBgDarkOverlay = max(0, min(1, (float) $customBgDarkOverlay));
   ?>
-  <?php if ($customBgUrl !== ''): ?>
+  <?php if ($customBgValue !== ''): ?>
     <style>
       :root {
-        --printer-custom-bg-url: url(<?php echo htmlspecialchars($customBgUrl, ENT_QUOTES, 'UTF-8'); ?>);
+        --printer-custom-bg-url: <?php echo $customBgValue; ?>;
         --printer-custom-bg-dark-overlay: <?php echo $customBgDarkOverlay; ?>;
       }
       html, body {
@@ -116,6 +121,13 @@
       }
     </style>
   <?php endif; ?>
+  <?php
+    $llmIndexUrl = function_exists('printerPaperLlmIndexUrl') ? printerPaperLlmIndexUrl($printerOptions) : '';
+  ?>
+  <?php if ($llmIndexUrl !== ''): ?>
+    <link rel="alternate" type="text/markdown" title="LLM readable index" href="<?php echo htmlspecialchars($llmIndexUrl, ENT_QUOTES, 'UTF-8'); ?>">
+  <?php endif; ?>
+  <?php if (function_exists('printerPaperRenderStructuredData')) printerPaperRenderStructuredData($this); ?>
   <?php $this->header(); ?>
 </head>
 <body>
@@ -123,9 +135,9 @@
     <header class="printer-top">
       <div class="top-row">
         <a class="brand" href="<?php $this->options->siteUrl(); ?>">
-          <?php if ($this->options->logoUrl): ?>
+          <?php if ($printerLogoUrl !== ''): ?>
             <span class="brand-logo">
-              <img src="<?php $this->options->logoUrl(); ?>" alt="logo">
+              <img src="<?php echo htmlspecialchars($printerLogoUrl, ENT_QUOTES, 'UTF-8'); ?>" alt="logo">
             </span>
           <?php else: ?>
             <span class="brand-mark"></span>
@@ -154,9 +166,9 @@
         </nav>
         <div class="ctrls">
           <form class="header-search" method="get" action="<?php $this->options->siteUrl(); ?>" role="search">
-            <label class="header-search-label" for="header-search-input"><?php _t('搜索'); ?></label>
-            <input id="header-search-input" type="search" name="s" placeholder="<?php _t('搜索'); ?>" />
-            <button type="submit" class="header-search-btn" aria-label="<?php _t('搜索'); ?>">
+            <label class="header-search-label" for="header-search-input"><?php _e('搜索'); ?></label>
+            <input id="header-search-input" type="search" name="s" placeholder="<?php _e('搜索'); ?>" />
+            <button type="submit" class="header-search-btn" aria-label="<?php _e('搜索'); ?>" aria-controls="header-search-input" aria-expanded="false">
               <svg viewBox="0 0 16 16" focusable="false" aria-hidden="true">
                 <path d="M6.5 2a4.5 4.5 0 1 1 0 9A4.5 4.5 0 0 1 6.5 2zm0 1.5a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"></path>
                 <path d="M10.4 10.4a.75.75 0 0 1 1.06 0l2.3 2.3a.75.75 0 1 1-1.06 1.06l-2.3-2.3a.75.75 0 0 1 0-1.06z"></path>
