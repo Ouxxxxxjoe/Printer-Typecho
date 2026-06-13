@@ -2,7 +2,7 @@
 /**
  * AI 可读内容出口
  *
- * @template AI 可读内容出口
+ * @package custom
  */
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
