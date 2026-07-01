@@ -486,9 +486,9 @@ function themeConfig($form) {
   $llmIndexUrl = new Typecho_Widget_Helper_Form_Element_Text(
     'llmIndexUrl',
     NULL,
-    '',
+    '/llms.txt',
     _t('LLM 页面地址'),
-    _t('填写当前站点的 LLM 内容出口地址，支持站内相对地址或完整 URL。填写后会像 RSS 一样在 head 和页脚输出发现入口')
+    _t('填写当前站点的 LLM 内容出口地址，支持站内相对地址或完整 URL。默认 /llms.txt，主题会在该路径输出 text/markdown')
   );
   $form->addInput($llmIndexUrl);
 }
@@ -1916,3 +1916,51 @@ function printerPaperGetFinalVisitStats() {
   $cachedFinalStats = $autoStats;
   return $cachedFinalStats;
 }
+
+function printerPaperIsLlmTxtRequest($options = null) {
+  if (PHP_SAPI === 'cli' || empty($_SERVER['REQUEST_URI'])) {
+    return false;
+  }
+
+  $path = parse_url((string) $_SERVER['REQUEST_URI'], PHP_URL_PATH);
+  if (!is_string($path) || $path === '') {
+    return false;
+  }
+
+  $path = rawurldecode($path);
+  $sitePath = parse_url((string) printerPaperOptionValue($options, 'siteUrl'), PHP_URL_PATH);
+  if (is_string($sitePath)) {
+    $sitePath = rtrim($sitePath, '/');
+    if ($sitePath !== '' && $sitePath !== '/' && strpos($path, $sitePath . '/') === 0) {
+      $path = substr($path, strlen($sitePath));
+    }
+  }
+
+  $path = '/' . ltrim($path, '/');
+  $path = rtrim($path, '/');
+
+  return $path === '/llms.txt' || $path === '/index.php/llms.txt';
+}
+
+function printerPaperHandleLlmTxtRequest() {
+  static $handled = false;
+  if ($handled) {
+    return;
+  }
+
+  $options = printerPaperGetOptions(null);
+  if (!printerPaperIsLlmTxtRequest($options)) {
+    return;
+  }
+
+  $handled = true;
+  if (!headers_sent()) {
+    http_response_code(200);
+    header('X-Robots-Tag: all');
+  }
+
+  printerPaperRenderLlmIndex(null);
+  exit;
+}
+
+printerPaperHandleLlmTxtRequest();

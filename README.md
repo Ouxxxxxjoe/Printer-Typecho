@@ -13,7 +13,7 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - 文章页体验：分类标签、发布日期、预计阅读时长、阅读进度条、上一篇 / 下一篇导航。
 - 评论区：适配 Typecho 原生评论、分页和登录态。
 - 访问统计：支持总访问、今日访问、初始访问量和访问计数增量。
-- AI 可读内容出口：在首页和文章页输出 Schema.org JSON-LD，并提供 `LLM.php` Markdown 索引页面模板。
+- AI 可读内容出口：在首页和文章页输出 Schema.org JSON-LD，并直接提供可访问的 `/llms.txt` Markdown 索引。
 - 社交链接：支持 GitHub、Twitter / X、微博、邮箱和 RSS。
 - 响应式适配：覆盖手机、横屏移动端、平板、触摸设备和减少动画偏好。
 
@@ -35,7 +35,7 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - `comments.php`：评论列表和评论表单。
 - `header.php`：公共头部、导航、搜索、日夜模式按钮、自定义字体和背景变量。
 - `footer.php`：公共页脚、社交链接、访问统计输出和前端交互脚本。
-- `LLM.php`：AI 可读 Markdown 内容出口页面模板。
+- `LLM.php`：AI 可读 Markdown 内容出口页面模板，可作为 `/llms.txt` 的兼容备用入口。
 - `functions.php`：主题配置项、颜色和字体清洗、随机文章、访问统计辅助函数。
 - `404.php`：404 页面。
 - `css/style.css`：主题样式。
@@ -62,7 +62,7 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - **站点 AI 摘要**：用一两句话说明本站主题、内容范围和适合回答的问题。留空时使用 Typecho 站点描述。
 - **发布者名称**：用于结构化数据中的 `publisher.name`。留空时使用网站名称。
 - **发布者 Logo**：用于结构化数据中的 `publisher.logo`。留空时使用 Logo 图片配置。
-- **LLM 页面出口**：控制 `LLM.php` 页面模板是否输出类似 `llms.txt` 的机器可读 Markdown 索引。
+- **LLM 页面出口**：控制 `/llms.txt` 和 `LLM.php` 页面模板是否输出机器可读 Markdown 索引。
 - **LLM 出口标题**：显示在 Markdown 索引顶部的标题。
 - **推荐读取说明**：告诉 AI 应该如何读取本站内容。留空时使用主题默认说明。
 - **适合回答的问题**：说明本站内容适合支持哪些问题或任务。
@@ -73,7 +73,26 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - **包含分类列表 / 独立页面**：控制是否在 LLM 页面输出分类和独立页面入口。
 - **RSS 地址 / 站点地图地址**：输出到 LLM 页面中的机器发现入口。
 
-当前版本会在首页输出 `WebSite`、`Blog` 和 `SearchAction`，在文章页输出 `BlogPosting`。`LLM.php` 则用于输出面向 AI agents 和 crawlers 的 Markdown 内容路线图。真正接管站点根路径 `/llms.txt` 更适合后续通过 Typecho 插件或路由实现。
+当前版本会在首页输出 `WebSite`、`Blog` 和 `SearchAction`，在文章页输出 `BlogPosting`。主题启用后会在 `/llms.txt` 输出面向 AI agents 和 crawlers 的 Markdown 内容路线图，内容复用 `LLM.php` 的渲染逻辑。
+
+#### `/llms.txt` 路由安装与使用
+
+主题内置了最小可用的路由适配，不需要额外安装插件：
+
+1. 在 Typecho 后台启用 **Printer** 主题。
+2. 进入 **设置外观** → **Printer**，确认 **LLM 页面出口** 为“启用”。
+3. 确认 **LLM 页面地址** 保持默认 `/llms.txt`，或按需填写完整地址。
+4. 访问 `https://你的域名/llms.txt`，应返回 `text/markdown; charset=UTF-8` 的 Markdown 索引。
+
+如果站点没有开启伪静态，服务器可能不会把 `/llms.txt` 转给 Typecho。此时可以先访问 `https://你的域名/index.php/llms.txt` 作为降级地址，或在 Web 服务器中把 `/llms.txt` rewrite 到 Typecho 的 `index.php`。例如 Nginx 可使用：
+
+```nginx
+location = /llms.txt {
+    try_files $uri /index.php/llms.txt;
+}
+```
+
+Apache 通常跟随 Typecho 伪静态规则即可；如果单独放行静态文件导致 404，请确保 `/llms.txt` 会进入 Typecho 入口。
 
 ### 外观样式
 
@@ -104,7 +123,7 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - **微博**：填写微博主页链接。
 - **邮箱**：填写联系邮箱地址。
 - **RSS 订阅地址**：填写 RSS 链接，例如 `/feed/` 或完整 RSS URL。
-- **LLM 页面地址**：填写当前站点的 LLM 内容出口地址，支持站内相对地址或完整 URL；填写后会像 RSS 一样在页面 `<head>` 和页脚图标中输出 `text/markdown` 发现入口。
+- **LLM 页面地址**：填写当前站点的 LLM 内容出口地址，支持站内相对地址或完整 URL；默认 `/llms.txt`。填写后会像 RSS 一样在页面 `<head>` 和页脚图标中输出 `text/markdown` 发现入口。
 
 对应字段留空时，页脚不会显示该社交图标。
 
@@ -115,11 +134,12 @@ Printer 是一款仿打印纸 / 复古设备面板风格的 Typecho 主题，复
 - 文章阅读进度条只在文章内容足够长时显示。
 - 返回顶部按钮会在页面向下滚动后出现。
 - 首页“随机阅读”会尽量避开最新文章，避免两个入口指向同一篇。
-- 使用 `LLM.php` 时，请在 Typecho 后台新建独立页面，选择该模板，并把页面地址填入“LLM 页面地址”。
+- 推荐直接使用内置 `/llms.txt`。如需兼容旧方式，也可以在 Typecho 后台新建独立页面，选择 `LLM.php` 模板，并把页面地址填入“LLM 页面地址”。
 
 ## 兼容与注意事项
 
 - 主题依赖 Typecho 原生模板接口和数据库接口。
+- `/llms.txt` 依赖请求进入 Typecho 入口；未开启伪静态时请使用 `/index.php/llms.txt` 或配置 Web 服务器 rewrite。
 - 访问统计功能需要数据库有建表权限。
 - 自定义字体 CSS 和自定义背景图建议使用稳定的 HTTPS 链接。
 - 若站点启用了 CDN 或页面缓存，请确保不会缓存所有访客共用的动态访问统计结果。
