@@ -15,6 +15,10 @@
 *.log
 /tmp/
 
+# 工具运行时产物（playwright 调试等）
+.playwright-cli/
+output/
+
 # Typecho 运行时（主题目录通常用不到，按需保留）
 uploads/
 cache/
