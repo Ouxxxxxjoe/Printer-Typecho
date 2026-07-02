@@ -5,18 +5,7 @@
 
     <?php $this->comments()->to($comments); ?>
     <?php if ($comments->have()): ?>
-      <ol class="comment-list">
-        <?php while ($comments->next()): ?>
-          <li id="comment-<?php $comments->theId(); ?>" class="comment-item">
-            <p class="comment-meta">
-              <span class="comment-author"><?php $comments->author(); ?></span>
-              <span class="comment-dot">·</span>
-              <time datetime="<?php $comments->date('c'); ?>"><?php $comments->date('Y-m-d H:i'); ?></time>
-            </p>
-            <div class="comment-content"><?php $comments->content(); ?></div>
-          </li>
-        <?php endwhile; ?>
-      </ol>
+      <?php $comments->listComments(); ?>
       <?php $comments->pageNav(_t('上一页'), _t('下一页'), 2, '...'); ?>
     <?php endif; ?>
 

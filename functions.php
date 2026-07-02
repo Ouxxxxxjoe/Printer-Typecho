@@ -843,3 +843,37 @@ function printerPaperGetRandomCids($count = 4, $categorySlugsText = '') {
   shuffle($cids);
   return array_slice($cids, 0, $count);
 }
+
+/**
+ * 嵌套评论渲染回调。
+ *
+ * Typecho 渲染评论列表时会自动调用名为 threadedComments 的全局函数（覆盖内置
+ * threadedCommentsCallback）。在此控制单条评论的 HTML 结构，并在存在子评论
+ * （如博主对访客评论的回复）时递归输出，从而修复主题原本只平铺顶层评论、
+ * 导致博主回复丢失的问题。
+ *
+ * @param Widget_Comments_Archive $comments 当前评论对象
+ * @param mixed                   $options   listComments 传入的选项
+ */
+function threadedComments($comments, $options)
+{
+  // 判断是否为博主回复：评论者 user id 等于文章作者 user id
+  $isAuthor = $comments->authorId && ($comments->authorId == $comments->ownerId);
+  $commentClass = 'comment-item' . ($isAuthor ? ' comment-by-author' : '');
+  ?>
+  <li id="comment-<?php $comments->theId(); ?>" class="<?php echo htmlspecialchars($commentClass, ENT_QUOTES, 'UTF-8'); ?>">
+    <p class="comment-meta">
+      <span class="comment-author"><?php $comments->author(); ?></span><?php if ($isAuthor): ?><span class="comment-badge"><?php _e('博主'); ?></span><?php endif; ?>
+      <span class="comment-dot">·</span>
+      <time datetime="<?php $comments->date('c'); ?>"><?php $comments->date('Y-m-d H:i'); ?></time>
+    </p>
+    <div class="comment-content"><?php $comments->content(); ?></div>
+
+    <?php if ($comments->children): ?>
+      <ol class="comment-children">
+        <?php $comments->threadedComments($options); ?>
+      </ol>
+    <?php endif; ?>
+  </li>
+  <?php
+}

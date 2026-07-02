@@ -720,34 +720,34 @@ html.dark .theme-toggle::after {
 }
 
 html.dark {
-  /* 暗黑模式使用冷色调中性色 */
-  --bg: #060d18;
-  --bg-oklch: oklch(12% 0.02 250);
-  --panel: #101926;
-  --panel-oklch: oklch(18% 0.03 250);
-  --panel-deep: #1a2434;
-  --panel-deep-oklch: oklch(24% 0.04 250);
-  --paper: #0f1824;
-  --paper-oklch: oklch(17% 0.025 250);
-  --ink: #d6deea;
-  --ink-oklch: oklch(88% 0.02 250);
-  --muted: #8192a8;
-  --muted-oklch: oklch(65% 0.03 250);
-  --line: #253349;
-  --line-oklch: oklch(32% 0.04 250);
+  /* 暗黑模式：中性灰黑（去蓝），保持明度阶梯与拟物质感 */
+  --bg: #0f0f0f;
+  --bg-oklch: oklch(12% 0.005 250);
+  --panel: #1a1a1c;
+  --panel-oklch: oklch(18% 0.006 250);
+  --panel-deep: #262628;
+  --panel-deep-oklch: oklch(24% 0.008 250);
+  --paper: #19191a;
+  --paper-oklch: oklch(17% 0.006 250);
+  --ink: #dfe0e1;
+  --ink-oklch: oklch(88% 0.005 250);
+  --muted: #8f939a;
+  --muted-oklch: oklch(65% 0.008 250);
+  --line: #353639;
+  --line-oklch: oklch(32% 0.008 250);
   --accent: #2fdc7b;
   --accent-oklch: oklch(75% 0.2 155);
 
   /* 阴影和网格线 */
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.6);
   --shadow-elevated: 0 24px 48px rgba(0, 0, 0, 0.7);
-  --grid-line: rgba(120, 145, 181, 0.35);
+  --grid-line: rgba(140, 140, 145, 0.32);
 }
 
 /* 暗黑模式背景网格 */
 html.dark body {
   background-image:
-    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%237891b5' stroke-width='1' stroke-opacity='0.35'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%237891b5' stroke-width='1' stroke-opacity='0.35'/%3E%3C/svg%3E");
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%238c8c91' stroke-width='1' stroke-opacity='0.32'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%238c8c91' stroke-width='1' stroke-opacity='0.32'/%3E%3C/svg%3E");
 }
 
 /* ============================================
@@ -774,7 +774,7 @@ body[style*="background-image"]::before {
 
 /* 黑暗模式下的遮罩 */
 html.dark body[style*="background-image"]::before {
-  background: rgba(6, 13, 24, var(--printer-custom-bg-dark-overlay, 0.65));
+  background: rgba(15, 15, 15, var(--printer-custom-bg-dark-overlay, 0.65));
 }
 
 /* 自定义背景图时的纸张区域增强可读性 */
@@ -789,7 +789,7 @@ body[style*="background-image"] .paper::before {
 }
 
 html.dark body[style*="background-image"] .paper {
-  background: rgba(15, 24, 36, 0.92);
+  background: rgba(25, 25, 26, 0.92);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
@@ -799,25 +799,25 @@ html.dark body[style*="background-image"] .paper::before {
 }
 
 html.dark .printer-top::after {
-  background: linear-gradient(to bottom, #0b111a, #1a2434);
+  background: linear-gradient(to bottom, #121213, #262628);
 }
 
 html.dark .printer-top {
-  background: linear-gradient(to bottom, #111c2b 0%, #0d1623 100%);
-  border-color: #20314b;
+  background: linear-gradient(to bottom, #1d1d1f 0%, #171819 100%);
+  border-color: #343437;
   box-shadow:
-    0 0 0 1px rgba(52, 90, 143, 0.12),
+    0 0 0 1px rgba(95, 95, 100, 0.12),
     0 18px 36px rgba(0, 0, 0, 0.62);
 }
 
 html.dark .brand-mark {
-  background: #1f2c3e;
-  box-shadow: inset 0 0 0 1px rgba(120, 145, 181, 0.24);
+  background: #2d2e30;
+  box-shadow: inset 0 0 0 1px rgba(140, 140, 145, 0.24);
 }
 
 html.dark .brand-logo {
-  background: #1a2536;
-  border-color: #2a3a53;
+  background: #272729;
+  border-color: #3d3d40;
 }
 
 html.dark .menu a,
@@ -827,9 +827,9 @@ html.dark .page-navigator a,
 html.dark .page-navigator span,
 html.dark #comment-form input,
 html.dark #comment-form textarea {
-  background: linear-gradient(to bottom, #131f2f 0%, #101a28 100%);
-  border-color: #2b3f5f;
-  color: #dce6f5;
+  background: linear-gradient(to bottom, #202022 0%, #1b1b1d 100%);
+  border-color: #434447;
+  color: #e8e8e9;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 0 0 1px rgba(20, 40, 67, 0.18);
@@ -837,35 +837,35 @@ html.dark #comment-form textarea {
 
 html.dark .menu a.current,
 html.dark .page-navigator .current a {
-  background: linear-gradient(to bottom, #162a43 0%, #12233a 100%);
-  border-color: #65b2ff;
-  color: #e8f3ff;
+  background: linear-gradient(to bottom, #2b2c2e 0%, #252527 100%);
+  border-color: #a9afbb;
+  color: #f3f3f4;
   box-shadow:
-    0 0 0 1px rgba(101, 178, 255, 0.55),
-    0 0 14px rgba(65, 141, 222, 0.35);
+    0 0 0 1px rgba(165, 170, 180, 0.55),
+    0 0 14px rgba(140, 145, 155, 0.35);
 }
 
 html.dark .menu a:hover {
-  border-color: #4b8ecf;
-  color: #e5f1ff;
+  border-color: #878b93;
+  color: #f1f2f3;
 }
 
 html.dark #comment-form button {
-  background: linear-gradient(to bottom, #183150 0%, #13263f 100%);
-  border-color: #4b8ecf;
-  color: #e9f4ff;
+  background: linear-gradient(to bottom, #323336 0%, #28282a 100%);
+  border-color: #878b93;
+  color: #f4f4f4;
 }
 
 html.dark .theme-toggle {
-  border-color: #355174;
-  background: radial-gradient(circle at 35% 35%, #24374e 0, #1b2c44 45%, #162336 100%);
+  border-color: #525357;
+  background: radial-gradient(circle at 35% 35%, #37383b 0, #2e2f31 45%, #252527 100%);
   box-shadow:
     inset -1px -2px 3px rgba(0, 0, 0, 0.4),
-    0 0 10px rgba(77, 132, 196, 0.25);
+    0 0 10px rgba(120, 125, 135, 0.25);
 }
 
 html.dark .theme-toggle::after {
-  background: #7dbdff;
+  background: #bbbdc1;
 }
 
 html.dark .power-dot {
@@ -881,7 +881,7 @@ html.dark .paper {
 }
 
 html.dark .paper::before {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='30'%3E%3Cline x1='0' y1='0' x2='1' y2='0' stroke='%238eb4eb' stroke-width='1' stroke-opacity='0.05'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1' height='30'%3E%3Cline x1='0' y1='0' x2='1' y2='0' stroke='%238c8c91' stroke-width='1' stroke-opacity='0.05'/%3E%3C/svg%3E");
   opacity: 0.2;
 }
 
@@ -900,6 +900,43 @@ html.dark .paper::before {
   /* 中文排版优化 */
   font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   text-spacing-trim: space-all;
+}
+
+/* 撕纸边缘：顶部用纯 CSS gradient 模拟撕裂锯齿
+   currentColor 跟随 color:var(--paper)，深浅模式自动换色，无需额外覆盖 */
+.paper::after {
+  content: "";
+  position: absolute;
+  top: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  pointer-events: none;
+  color: var(--paper);
+  background-image:
+    linear-gradient(135deg, transparent 33.33%, currentColor 33.33% 66.67%, transparent 66.67%),
+    linear-gradient(225deg, transparent 33.33%, currentColor 33.33% 66.67%, transparent 66.67%);
+  background-repeat: repeat;
+  background-size: 12px 6px;
+}
+
+/* 撕纸边缘：底部（独立 DOM 元素，因 .paper 的 ::before/::after 已被横线与顶部撕纸占用）
+   绝对定位贴在纸面底边外侧，与顶部 ::after 对称；锯齿方向镜像：315°/45° 让纸向下撕开
+   选择器用 .paper > 提升特异性，覆盖第 957 行 .paper>* 强加的 position:relative */
+.paper > .paper-edge-bottom {
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 6px;
+  z-index: 0;
+  pointer-events: none;
+  color: var(--paper);
+  background-image:
+    linear-gradient(315deg, transparent 33.33%, currentColor 33.33% 66.67%, transparent 66.67%),
+    linear-gradient(45deg, transparent 33.33%, currentColor 33.33% 66.67%, transparent 66.67%);
+  background-repeat: repeat;
+  background-size: 12px 6px;
 }
 
 .paper:hover {
@@ -990,7 +1027,7 @@ html.dark .paper::before {
 }
 
 html.dark .meta-label-icon svg {
-  fill: #607190;
+  fill: #72767e;
 }
 
 .meta-tags {
@@ -1671,28 +1708,28 @@ html.dark .post-content tbody tr:nth-child(even) td {
 }
 
 html.dark .not-found-search-bar input[type="search"] {
-  background: linear-gradient(to bottom, #131f2f 0%, #101a28 100%);
-  border-color: #2b3f5f;
-  color: #dce6f5;
+  background: linear-gradient(to bottom, #202022 0%, #1b1b1d 100%);
+  border-color: #434447;
+  color: #e8e8e9;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 0 0 1px rgba(20, 40, 67, 0.18);
 }
 
 html.dark .not-found-search-submit {
-  background: linear-gradient(to bottom, #183150 0%, #13263f 100%);
-  border-color: #4b8ecf;
-  color: #e9f4ff;
+  background: linear-gradient(to bottom, #323336 0%, #28282a 100%);
+  border-color: #878b93;
+  color: #f4f4f4;
 }
 
 html.dark .site-footer {
-  border-top-color: rgba(120, 145, 181, 0.22);
+  border-top-color: rgba(140, 140, 145, 0.22);
 }
 
 /* 页脚卡片 - 暗黑模式 */
 html.dark .site-footer-card {
   background: linear-gradient(145deg, #1a2940 0%, #131c2e 100%);
-  border-color: #2b3f5f;
+  border-color: #434447;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.03),
     0 8px 24px rgba(0, 0, 0, 0.3);
@@ -1700,32 +1737,32 @@ html.dark .site-footer-card {
 
 /* 社交链接 - 暗黑模式 */
 html.dark .social-link {
-  background: linear-gradient(145deg, #1e3a5f 0%, #152a45 100%);
+  background: linear-gradient(145deg, #3d3d40 0%, #2c2c2e 100%);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.05),
-    0 4px 0 #0f1f35,
+    0 4px 0 #212123,
     0 6px 8px rgba(0, 0, 0, 0.3);
-  color: #8fa3bf;
+  color: #a3a6ab;
 }
 
 html.dark .social-link:hover {
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.05),
-    0 6px 0 #0f1f35,
+    0 6px 0 #212123,
     0 8px 12px rgba(0, 0, 0, 0.4);
-  color: #b8c9e0;
+  color: #cacbce;
 }
 
 html.dark .social-link:active {
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.3),
-    0 2px 0 #0f1f35,
+    0 2px 0 #212123,
     0 3px 5px rgba(0, 0, 0, 0.2);
 }
 
 /* 分隔装饰 - 暗黑模式 */
 html.dark .divider-line {
-  background: linear-gradient(90deg, transparent, #2b3f5f, transparent);
+  background: linear-gradient(90deg, transparent, #434447, transparent);
 }
 
 html.dark .divider-dot {
@@ -1735,32 +1772,32 @@ html.dark .divider-dot {
 
 /* 返回顶部按钮 - 暗黑模式 */
 html.dark .back-to-top {
-  background: linear-gradient(145deg, #1e3a5f 0%, #152a45 100%);
+  background: linear-gradient(145deg, #3d3d40 0%, #2c2c2e 100%);
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.05),
-    0 4px 0 #0f1f35,
+    0 4px 0 #212123,
     0 8px 16px rgba(0, 0, 0, 0.35);
 }
 
 html.dark .back-to-top svg {
-  fill: #8fa3bf;
+  fill: #a3a6ab;
 }
 
 html.dark .back-to-top:hover {
   box-shadow:
     inset 0 2px 4px rgba(255, 255, 255, 0.05),
-    0 6px 0 #0f1f35,
+    0 6px 0 #212123,
     0 10px 20px rgba(0, 0, 0, 0.45);
 }
 
 html.dark .back-to-top:hover svg {
-  fill: #b8c9e0;
+  fill: #cacbce;
 }
 
 html.dark .back-to-top:active {
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.3),
-    0 2px 0 #0f1f35,
+    0 2px 0 #212123,
     0 4px 8px rgba(0, 0, 0, 0.25);
 }
 
@@ -1806,6 +1843,50 @@ html.dark .back-to-top:active {
   color: inherit;
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+/* 嵌套子评论：缩进 + 左侧引导线，体现对话层级 */
+.comment-children {
+  list-style: none;
+  margin: 10px 0 0 20px;
+  padding: 0 0 0 14px;
+  border-left: 2px solid var(--line);
+}
+
+/* 首条子评论去掉顶部分隔线，避免与父评论底边重叠 */
+.comment-children > .comment-item:first-child {
+  border-top: 0;
+  padding-top: 6px;
+}
+
+/* 博主回复高亮：微弱底色 + 「博主」徽章 */
+.comment-by-author {
+  background: rgba(149, 195, 148, 0.08);
+  border-radius: var(--radius-sm);
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.comment-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--accent);
+  background: rgba(149, 195, 148, 0.15);
+  border-radius: var(--radius-sm);
+  vertical-align: middle;
+}
+
+/* 深色模式下博主高亮适配 */
+html.dark .comment-by-author {
+  background: rgba(47, 220, 123, 0.06);
+}
+
+html.dark .comment-badge {
+  color: var(--accent);
+  background: rgba(47, 220, 123, 0.12);
 }
 
 .respond-title {
@@ -1857,8 +1938,8 @@ html.dark .respond-label {
 
 html.dark #comment-form input:focus,
 html.dark #comment-form textarea:focus {
-  border-color: #4b8ecf;
-  box-shadow: 0 0 0 3px rgba(75, 142, 207, 0.2);
+  border-color: #878b93;
+  box-shadow: 0 0 0 3px rgba(120, 125, 135, 0.2);
 }
 
 #comment-form textarea {
@@ -2154,14 +2235,14 @@ article .post-content img {
   /* 暗黑模式移动端优化 */
   html.dark .brand-mark,
   html.dark .brand-logo {
-    background: radial-gradient(circle at 35% 35%, #22344b 0, #1a2a42 55%, #142234 100%);
+    background: radial-gradient(circle at 35% 35%, #3d3d40 0, #2a2a2c 55%, #222224 100%);
     box-shadow:
       0 12px 22px rgba(0, 0, 0, 0.55),
       inset 0 1px 0 rgba(255, 255, 255, 0.06);
   }
 
   html.dark .menu {
-    border-bottom-color: rgba(120, 145, 181, 0.22);
+    border-bottom-color: rgba(140, 140, 145, 0.22);
   }
 
   html.dark .menu a {
@@ -2396,6 +2477,12 @@ article .post-content img {
   .comment-content {
     font-size: 14px;
     line-height: 1.7;
+  }
+
+  /* 移动端：减小嵌套缩进，避免多层回复溢出窄屏 */
+  .comment-children {
+    margin-left: 12px;
+    padding-left: 10px;
   }
 
   /* 评论表单优化 */
@@ -2827,14 +2914,10 @@ select:focus {
   border-radius: var(--radius-sm);
 }
 
-/* 圆形按钮保持圆形焦点轮廓 */
-.theme-toggle:focus,
-.header-search-btn:focus,
-.back-to-top:focus,
-.social-link:focus {
-  border-radius: 50%;
-  outline-offset: 2px;
-}
+/* 圆形按钮焦点样式统一交给下方 :focus-visible 规则
+   此处不再为 :focus（含鼠标点击）单独设 outline，避免浏览器对 outline
+   不跟随 border-radius 而画出突兀的方框。鼠标点击时的 outline 由
+   下方 :focus:not(:focus-visible) { outline: none } 清除。 */
 
 /* 现代浏览器使用 focus-visible（仅在键盘导航时显示） */
 a:focus-visible,
@@ -2899,5 +2982,23 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
   .back-to-top:focus-visible,
   .social-link:focus-visible {
     box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.3);
+  }
+}
+
+/* ============================================
+   进纸过渡：跨文档 View Transitions（复刻 NOOC）
+   - @view-transition { navigation: auto } 让同源跳转自动快照过渡，零 JS
+   - 兼容性：Chrome/Edge 126+、Android Chrome 支持；不支持的浏览器自动降级为普通跳转
+   - 仅在用户未偏好减少动画时启用 0.26s 强减速交叉淡入，模拟"纸张切换"观感
+   ============================================ */
+@view-transition {
+  navigation: auto;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 0.26s;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
 }

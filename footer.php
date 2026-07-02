@@ -1,3 +1,4 @@
+    <div class="paper-edge-bottom" aria-hidden="true"></div>
     </main>
     <!-- Printer Theme Footer -->
     <footer class="site-footer">
