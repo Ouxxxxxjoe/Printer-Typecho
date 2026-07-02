@@ -56,10 +56,15 @@ jobs:
       - name: 打包插件 Printerllm-${{ steps.ver.outputs.version }}.zip
         run: |
           test -d Printerllm || { echo "::error::未找到 Printerllm 插件目录"; exit 1; }
-          mkdir -p dist
-          cd Printerllm && zip -r "../dist/Printerllm-${{ steps.ver.outputs.version }}.zip" . -x '*.DS_Store'
+          # 与主题打包方式一致：先建 dist/Printerllm/ 中间目录，
+          # 确保 zip 内层为 Printerllm/（Typecho 要求 usr/plugins/Printerllm/Plugin.php）
+          mkdir -p dist/Printerllm
+          cp -r Printerllm/* dist/Printerllm/ 2>/dev/null || true
+          # 校验插件核心文件齐全
+          test -f dist/Printerllm/Plugin.php || { echo "::error::缺少 Plugin.php，插件打包失败"; exit 1; }
+          cd dist && zip -r "Printerllm-${{ steps.ver.outputs.version }}.zip" Printerllm -x '*.DS_Store'
           echo "插件包内容："
-          unzip -l "../dist/Printerllm-${{ steps.ver.outputs.version }}.zip"
+          unzip -l "Printerllm-${{ steps.ver.outputs.version }}.zip"
 
       - name: 创建 tag 与 Release
         uses: softprops/action-gh-release@v2
