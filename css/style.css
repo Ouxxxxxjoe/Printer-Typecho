@@ -3036,7 +3036,7 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
 .post-toc {
   position: fixed;
   top: 50%;
-  right: 32px;
+  left: 32px;
   transform: translateY(-50%);
   width: 200px;
   max-height: 60vh;
