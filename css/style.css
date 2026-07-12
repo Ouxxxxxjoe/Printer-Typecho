@@ -42,10 +42,24 @@
   --radius-xl: 26px;
   --radius-full: 999px;
 
-  /* 动效缓动 */
-  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
-  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+  /* 动效缓动 —— 纸张轻盈感系统 */
+  /* 旧变量值替换为纸张感曲线（保留变量名做向后兼容）*/
+  --ease-smooth: cubic-bezier(0.32, 0.72, 0, 1);    /* 安静通用曲线 */
+  --ease-enter:  cubic-bezier(0.16, 1, 0.3, 1);     /* ease-out-expo：纸落定 */
+  --ease-exit:   cubic-bezier(0.7, 0, 0.84, 0);     /* ease-in-expo：纸被收走 */
+
+  /* 纸张感缓动系统（语义化命名，供新代码显式引用）*/
+  --paper-in:        cubic-bezier(0.16, 1, 0.3, 1);     /* ease-out-expo：纸落定，前快后极慢 */
+  --paper-out:       cubic-bezier(0.7, 0, 0.84, 0);     /* ease-in-expo：纸被收走，前慢后快 */
+  --paper-soft:      cubic-bezier(0.32, 0.72, 0, 1);    /* 安静通用，按钮/控件 */
+  --paper-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* 轻微回弹，仅指示灯等小元素 */
+
+  /* 统一时长尺度（语义化）*/
+  --t-tap:     180ms;   /* 按钮按压、点击反馈 */
+  --t-quick:   280ms;   /* 悬停、搜索框展开 */
+  --t-paper:   520ms;   /* 纸张入场（列表/标题/卡片） */
+  --t-page:    480ms;   /* 页面切换（View Transition） */
+  --t-ambient: 2.4s;    /* 指示灯呼吸等环境动效 */
 
   /* 字体加载策略 - 确保中文网字计划不受影响 */
   --font-display: swap;
@@ -68,12 +82,12 @@ html.theme-animating *,
 html.theme-animating *::before,
 html.theme-animating *::after {
   transition:
-    background-color 250ms var(--ease-smooth),
-    color 250ms var(--ease-smooth),
-    border-color 250ms var(--ease-smooth),
-    box-shadow 250ms var(--ease-smooth),
-    background-image 250ms var(--ease-smooth),
-    transform 250ms var(--ease-smooth);
+    background-color 320ms var(--ease-smooth),
+    color 320ms var(--ease-smooth),
+    border-color 320ms var(--ease-smooth),
+    box-shadow 320ms var(--ease-smooth),
+    background-image 320ms var(--ease-smooth),
+    transform 320ms var(--ease-smooth);
 }
 
 /* 关键元素单独优化过渡 */
@@ -81,9 +95,9 @@ html.theme-animating .printer-top,
 html.theme-animating .paper,
 html.theme-animating .site-footer {
   transition:
-    background-color 250ms var(--ease-smooth),
-    border-color 250ms var(--ease-smooth),
-    box-shadow 250ms var(--ease-smooth);
+    background-color 320ms var(--ease-smooth),
+    border-color 320ms var(--ease-smooth),
+    box-shadow 320ms var(--ease-smooth);
 }
 
 /* 按钮和交互元素更快响应 - 使用enter缓动 */
@@ -98,16 +112,16 @@ html.theme-animating .header-search-btn {
 }
 
 @keyframes power-pulse {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1; }
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 8px rgba(134, 188, 142, 0.4); }
+  50%      { opacity: 1;    box-shadow: 0 0 14px rgba(134, 188, 142, 0.7); }
 }
 
 @keyframes power-pulse-dark {
-  0%, 100% { opacity: 0.6; }
-  50%       { opacity: 1; }
+  0%, 100% { opacity: 0.55; box-shadow: 0 0 8px rgba(255, 77, 79, 0.4); }
+  50%      { opacity: 1;    box-shadow: 0 0 14px rgba(255, 77, 79, 0.75); }
 }
 
-/* 页面加载动画 */
+/* 页面加载动画 —— 纸张叠落入场（IntersectionObserver 触发，见 footer.php）*/
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -124,39 +138,37 @@ html.theme-animating .header-search-btn {
   to { opacity: 1; }
 }
 
-@keyframes slideInLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-/* 交错动画延迟 */
-.post-item:nth-child(1) { animation: fadeInUp 0.5s var(--ease-enter) 0.1s both; }
-.post-item:nth-child(2) { animation: fadeInUp 0.5s var(--ease-enter) 0.15s both; }
-.post-item:nth-child(3) { animation: fadeInUp 0.5s var(--ease-enter) 0.2s both; }
-.post-item:nth-child(4) { animation: fadeInUp 0.5s var(--ease-enter) 0.25s both; }
-.post-item:nth-child(5) { animation: fadeInUp 0.5s var(--ease-enter) 0.3s both; }
-.post-item:nth-child(6) { animation: fadeInUp 0.5s var(--ease-enter) 0.35s both; }
-.post-item:nth-child(7) { animation: fadeInUp 0.5s var(--ease-enter) 0.4s both; }
-.post-item:nth-child(8) { animation: fadeInUp 0.5s var(--ease-enter) 0.45s both; }
-.post-item:nth-child(9) { animation: fadeInUp 0.5s var(--ease-enter) 0.5s both; }
-.post-item:nth-child(10) { animation: fadeInUp 0.5s var(--ease-enter) 0.55s both; }
-
-.paper-title {
-  animation: slideInLeft 0.6s var(--ease-enter) 0.05s both;
-}
-
-.paper-subtitle {
-  animation: fadeIn 0.5s var(--ease-smooth) 0.2s both;
-}
-
+/* 纸张叠落入场系统
+   机制：元素默认 opacity:0 + translateY(10px)，进入视口时 JS 加 .in-view 类触发 transition。
+   错落延迟（前密后疏）由 JS 按元素 DOM 位置动态赋予 transition-delay。
+   不支持 IntersectionObserver 的浏览器由 JS 直接加 .in-view，内容不丢。
+   prefers-reduced-motion 由全局规则（见文件末尾）把 transition 压到 0.01ms，纸张直接出现。*/
+.post-item,
+.paper-title,
+.paper-subtitle,
 .paper-meta {
-  animation: fadeIn 0.5s var(--ease-smooth) 0.3s both;
+  opacity: 0;
+  transform: translateY(10px);
+  transition:
+    opacity var(--t-paper) var(--paper-in),
+    transform var(--t-paper) var(--paper-in);
+}
+
+/* .post-item 额外保留原有的悬停背景色过渡（合并，避免被 .post-item 自身规则覆盖）*/
+.post-item {
+  transition:
+    opacity var(--t-paper) var(--paper-in),
+    transform var(--t-paper) var(--paper-in),
+    background-color 0.2s var(--ease-smooth);
+}
+
+/* 进入视口：纸落定 */
+.post-item.in-view,
+.paper-title.in-view,
+.paper-subtitle.in-view,
+.paper-meta.in-view {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 html,
@@ -169,7 +181,7 @@ body {
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Cline x1='0' y1='0' x2='0' y2='32' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3Cline x1='0' y1='0' x2='32' y2='0' stroke='%23b4a792' stroke-width='1' stroke-opacity='0.25'/%3E%3C/svg%3E");
   font-family: "Songti SC", "Noto Serif CJK SC", "STSong", "PingFang SC", "Microsoft YaHei", sans-serif;
-  transition: background-color 250ms var(--ease-smooth);
+  transition: background-color 320ms var(--ease-smooth);
   /* 优化文本渲染 */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -384,7 +396,7 @@ html.dark .power-text-off {
   margin: 0 auto 6px;
   border-radius: 50%;
   background: var(--accent);
-  animation: power-pulse 2.4s ease-in-out infinite;
+  animation: power-pulse var(--t-ambient) ease-in-out infinite;
   /* 使用 opacity 动画代替 box-shadow 动画，性能更好 */
   box-shadow: 0 0 10px rgba(134, 188, 142, 0.6);
   will-change: opacity;
@@ -428,7 +440,7 @@ html.dark .power-dot {
     0 8px 8px rgba(40, 34, 25, 0.15),
     0 12px 16px rgba(40, 34, 25, 0.1);
   /* 微交互 */
-  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
+  transition: transform var(--t-tap) var(--paper-soft), box-shadow var(--t-tap) var(--paper-soft);
   position: relative;
   border: none;
   text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
@@ -502,7 +514,7 @@ html.dark .power-dot {
   font-size: 12px;
   color: inherit;
   outline: none;
-  transition: width 250ms var(--ease-enter), padding 250ms var(--ease-enter), opacity 200ms var(--ease-smooth);
+  transition: width 0.32s var(--paper-in), padding 0.32s var(--paper-in), opacity 0.24s var(--paper-soft);
 }
 
 .header-search.open input[type="search"] {
@@ -538,7 +550,7 @@ html.dark .power-dot {
     0 5px 0 #c4b8a0,
     0 6px 8px rgba(40, 34, 25, 0.2),
     0 10px 16px rgba(40, 34, 25, 0.12);
-  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
+  transition: transform var(--t-tap) var(--paper-soft), box-shadow var(--t-tap) var(--paper-soft);
   position: relative;
   /* GPU 加速优化 */
   transform: translateZ(0);
@@ -577,7 +589,7 @@ html.dark .power-dot {
 }
 
 .header-search-btn:active {
-  transform: translate3d(0, 3px, 0);
+  transform: translate3d(0, 4px, 0);
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.12),
     0 2px 0 #c4b8a0,
@@ -660,7 +672,7 @@ html.dark .header-search-btn {
     0 5px 0 #c4b8a0,
     0 6px 8px rgba(40, 34, 25, 0.2),
     0 10px 16px rgba(40, 34, 25, 0.12);
-  transition: transform 150ms var(--ease-enter), box-shadow 150ms var(--ease-enter);
+  transition: transform var(--t-tap) var(--paper-soft), box-shadow var(--t-tap) var(--paper-soft);
   /* GPU 加速优化 */
   transform: translateZ(0);
   backface-visibility: hidden;
@@ -708,7 +720,7 @@ html.dark .header-search-btn {
 }
 
 .theme-toggle:active {
-  transform: translate3d(0, 3px, 0);
+  transform: translate3d(0, 4px, 0);
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.12),
     0 2px 0 #c4b8a0,
@@ -1084,7 +1096,6 @@ html.dark .meta-label-icon svg {
   border-top: 1px solid var(--line);
   padding: var(--space-6) var(--space-5);
   margin: 0 calc(-1 * var(--space-5));
-  transition: background-color 0.2s var(--ease-smooth);
 }
 
 .post-item:first-child {
@@ -1515,19 +1526,11 @@ html.dark .post-content tbody tr:nth-child(even) td {
 }
 
 .social-link:active {
-  transform: translateY(2px);
+  transform: translateY(4px);
   box-shadow:
     inset 0 3px 6px rgba(0, 0, 0, 0.1),
     0 2px 0 #c4b8a0,
     0 3px 5px rgba(40, 34, 25, 0.1);
-}
-
-.social-link:hover,
-.social-link:focus,
-.social-link:focus-visible,
-.social-link:active,
-.social-link:visited {
-  border-radius: 50%;
 }
 
 /* 分隔装饰 */
@@ -1613,8 +1616,8 @@ html.dark .post-content tbody tr:nth-child(even) td {
   will-change: transform, opacity, box-shadow;
   opacity: 0;
   visibility: hidden;
-  transform: translateY(20px);
-  transition: opacity 0.3s var(--ease-enter), visibility 0.3s var(--ease-enter), transform 0.3s var(--ease-enter), box-shadow 0.3s var(--ease-enter);
+  transform: translateY(14px);
+  transition: opacity 0.32s var(--paper-soft), visibility 0.32s var(--paper-soft), transform 0.32s var(--paper-soft), box-shadow var(--t-tap) var(--paper-soft);
   z-index: 100;
 }
 
@@ -2885,41 +2888,25 @@ article .post-content img {
    暗黑模式呼吸灯动画覆盖
    ============================================ */
 html.dark .power-dot {
-  animation: power-pulse-dark 2.4s ease-in-out infinite;
+  animation: power-pulse-dark var(--t-ambient) ease-in-out infinite;
 }
 
 /* ============================================
    无障碍：链接和按钮键盘焦点可见性
    ============================================
-   使用 :focus 作为回退，:focus-visible 作为渐进增强
-   确保在不支持 focus-visible 的浏览器中也能看到焦点
+   设计原则：焦点指示完全交给 outline，绝不改动元素自身的 border-radius。
+   现代浏览器的 outline 会自动跟随 border-radius（圆按钮→圆轮廓、方按钮→方轮廓），
+   因此无需任何 :not() 黑名单，也就不会出现"圆形按钮点击/聚焦后变方形"的问题。
+   鼠标点击不显示焦点轮廓（避免噪音），仅在键盘导航时通过 :focus-visible 显示。
 */
 
-/* 基础焦点样式 - 所有浏览器支持 */
-a:focus,
-button:focus,
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
+/* 鼠标点击产生的 :focus 不显示焦点轮廓（现代浏览器交给 :focus-visible） */
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none;
 }
 
-/* 为大多数元素添加圆角焦点轮廓 */
-a:focus:not(.theme-toggle):not(.header-search-btn):not(.social-link),
-button:focus:not(.theme-toggle):not(.header-search-btn):not(.social-link),
-input:focus,
-textarea:focus,
-select:focus {
-  border-radius: var(--radius-sm);
-}
-
-/* 圆形按钮焦点样式统一交给下方 :focus-visible 规则
-   此处不再为 :focus（含鼠标点击）单独设 outline，避免浏览器对 outline
-   不跟随 border-radius 而画出突兀的方框。鼠标点击时的 outline 由
-   下方 :focus:not(:focus-visible) { outline: none } 清除。 */
-
-/* 现代浏览器使用 focus-visible（仅在键盘导航时显示） */
+/* 键盘导航焦点轮廓 —— outline 自动跟随每个元素自身的 border-radius */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -2930,75 +2917,48 @@ select:focus-visible {
   transition: outline-offset 150ms var(--ease-enter);
 }
 
-/* 为大多数元素添加圆角焦点轮廓 */
-a:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top):not(.social-link),
+/* 方角链接/按钮的焦点增强（含光晕）；圆形按钮不进入此规则，保持纯 outline */
 button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top):not(.social-link),
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  border-radius: var(--radius-sm);
-}
-
-/* 圆形按钮保持圆形焦点轮廓 */
-.theme-toggle:focus-visible,
-.header-search-btn:focus-visible,
-.back-to-top:focus-visible,
-.social-link:focus-visible {
-  border-radius: 50%;
-  outline-offset: 2px;
-}
-
-/* 鼠标点击时不显示焦点轮廓（现代浏览器） */
-a:focus:not(:focus-visible),
-button:focus:not(:focus-visible) {
-  outline: none;
-}
-
-/* 按钮焦点增强 */
-button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top),
 .menu a:focus-visible {
-  outline: 2px solid var(--accent);
   outline-offset: 4px;
   box-shadow: 0 0 0 4px rgba(149, 195, 148, 0.3);
 }
 
-/* 圆形按钮焦点增强 - 保持圆形轮廓 */
-.theme-toggle:focus-visible,
-.header-search-btn:focus-visible,
-.back-to-top:focus-visible,
-.social-link:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px rgba(149, 195, 148, 0.3);
-  border-radius: 50%;
-}
-
-/* 支持 OKLCH 的浏览器使用更精确的焦点阴影 */
+/* 支持 OKLCH 的浏览器使用更精确的焦点光晕 */
 @supports (color: oklch(0% 0 0)) {
-  button:focus-visible,
-  .menu a:focus-visible,
-  .header-search-btn:focus-visible,
-  .theme-toggle:focus-visible,
-  .back-to-top:focus-visible,
-  .social-link:focus-visible {
+  button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top):not(.social-link),
+  .menu a:focus-visible {
     box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.3);
   }
 }
 
 /* ============================================
-   进纸过渡：跨文档 View Transitions（复刻 NOOC）
+   进纸过渡：跨文档 View Transitions —— 纸的交接
    - @view-transition { navigation: auto } 让同源跳转自动快照过渡，零 JS
-   - 兼容性：Chrome/Edge 126+、Android Chrome 支持；不支持的浏览器自动降级为普通跳转
-   - 仅在用户未偏好减少动画时启用 0.26s 强减速交叉淡入，模拟"纸张切换"观感
+   - 兼容性：Chrome/Edge 126+、Android Chrome 支持；Safari/Firefox 降级为普通跳转
+   - 纸面交接语义：旧纸向下滑出 + 轻微模糊（被收走），新纸从上方落入 + 清晰化（被送上来）
+   - 深入/返回统一方向（纯 CSS，无需 JS 判断导航方向）
    ============================================ */
 @view-transition {
   navigation: auto;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  ::view-transition-old(root),
+  /* 旧纸：向下滑出 + 失焦，像被收走（ease-in-expo：前慢后快，被抽走）*/
+  ::view-transition-old(root) {
+    animation: paperExit var(--t-page) var(--paper-out) both;
+  }
+  /* 新纸：从上方落入 + 清晰化，像被送上来（ease-out-expo：前快后慢，落定）*/
   ::view-transition-new(root) {
-    animation-duration: 0.26s;
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+    animation: paperEnter calc(var(--t-page) + 40ms) var(--paper-in) both;
+  }
+
+  @keyframes paperExit {
+    0%   { opacity: 1; transform: translateY(0); filter: blur(0); }
+    100% { opacity: 0; transform: translateY(24px); filter: blur(2px); }
+  }
+  @keyframes paperEnter {
+    0%   { opacity: 0; transform: translateY(-14px); filter: blur(1px); }
+    100% { opacity: 1; transform: translateY(0); filter: blur(0); }
   }
 }

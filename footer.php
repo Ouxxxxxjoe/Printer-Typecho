@@ -123,14 +123,50 @@
           localStorage.setItem('printer-theme-mode', nextDark ? 'dark' : 'light');
         } catch (e) {}
         syncState();
-        // 等待过渡动画完成（250ms CSS 过渡 + 50ms 缓冲）
+        // 等待过渡动画完成（320ms CSS 过渡 + 50ms 缓冲）
         window.setTimeout(function () {
           root.classList.remove('theme-animating');
-        }, 300);
+        }, 370);
       });
     })();
   </script>
-  <?php if ($this->options->analyticsCode): ?>
+  <script>
+    // 纸张叠落入场 —— IntersectionObserver 视口触发
+    (function () {
+      var items = document.querySelectorAll('.post-item, .paper-title, .paper-subtitle, .paper-meta');
+      if (!items.length) return;
+
+      // 不支持 IntersectionObserver 的浏览器直接显示，内容不丢
+      if (!('IntersectionObserver' in window)) {
+        items.forEach(function (el) { el.classList.add('in-view'); });
+        return;
+      }
+
+      // 前密后疏延迟序列（差值递增，模拟真实叠纸节奏）
+      var delays = [0, 60, 130, 210, 300, 400, 510, 630];
+
+      // 预计算每个元素在其父级 children 中的索引（DOM 顺序，稳定；
+      // 不能用 IntersectionObserver 回调里的 entries 序号，同批回调内顺序不稳定）
+      var indexByEl = new WeakMap();
+      items.forEach(function (el) {
+        if (!el.parentElement) return;
+        indexByEl.set(el, Array.prototype.indexOf.call(el.parentElement.children, el));
+      });
+
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (!entry.isIntersecting) return;
+          var el = entry.target;
+          var idx = indexByEl.get(el) || 0;
+          el.style.transitionDelay = delays[Math.min(idx, delays.length - 1)] + 'ms';
+          el.classList.add('in-view');
+          io.unobserve(el); // 只触发一次
+        });
+      }, { rootMargin: '0px 0px -8% 0px', threshold: 0.05 });
+
+      items.forEach(function (el) { io.observe(el); });
+    })();
+  </script>
     <?php echo $this->options->analyticsCode; ?>
   <?php endif; ?>
   <script>
@@ -155,12 +191,37 @@
         return true;
       };
 
+      // 平滑追迟：rAF + lerp 0.18，进度条比实际滚动慢半拍追上
+      // prefers-reduced-motion 下走原生 CSS scroll（无 JS 插值），由全局 reduce 规则覆盖
+      var target = 0, current = 0, running = false;
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      var loop = function () {
+        current += (target - current) * 0.18;
+        if (Math.abs(target - current) < 0.1) {
+          current = target;
+          bar.style.width = current + '%';
+          bar.setAttribute('aria-valuenow', Math.round(current));
+          running = false;
+          return;
+        }
+        bar.style.width = current + '%';
+        bar.setAttribute('aria-valuenow', Math.round(current));
+        requestAnimationFrame(loop);
+      };
+
       var update = function () {
         if (bar.style.display === 'none') return;
         var total = article.offsetTop + article.offsetHeight - window.innerHeight;
-        var progress = total > 0 ? Math.min(100, Math.max(0, (window.scrollY / total) * 100)) : 100;
-        bar.style.width = progress + '%';
-        bar.setAttribute('aria-valuenow', Math.round(progress));
+        target = total > 0 ? Math.min(100, Math.max(0, (window.scrollY / total) * 100)) : 100;
+        if (reduceMotion) {
+          // 降级：直接赋值，不加 lerp
+          current = target;
+          bar.style.width = target + '%';
+          bar.setAttribute('aria-valuenow', Math.round(target));
+          return;
+        }
+        if (!running) { running = true; requestAnimationFrame(loop); }
       };
 
       // 初始化检查
