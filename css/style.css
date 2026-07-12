@@ -3036,7 +3036,9 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
 .post-toc {
   position: fixed;
   top: 50%;
-  left: 32px;
+  /* 锚正文左边缘，保持固定 24px 间距（任何分辨率都一致）：
+     50%（视口中线）- 470px（退到正文左边）- 200px（退一个 TOC 宽度）- 24px（间距）*/
+  left: calc(50% - 470px - 200px - 24px);
   transform: translateY(-50%);
   width: 200px;
   max-height: 60vh;
@@ -3053,7 +3055,7 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
   display: none;
 }
 
-@media (min-width: 1220px) {
+@media (min-width: 1400px) {
   .post-toc.has-items {
     display: block;
   }
