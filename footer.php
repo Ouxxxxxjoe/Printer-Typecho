@@ -167,6 +167,7 @@
       items.forEach(function (el) { io.observe(el); });
     })();
   </script>
+  <?php if ($this->options->analyticsCode): ?>
     <?php echo $this->options->analyticsCode; ?>
   <?php endif; ?>
   <script>
