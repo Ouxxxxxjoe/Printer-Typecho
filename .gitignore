@@ -19,6 +19,9 @@
 .playwright-cli/
 output/
 
+# 设计文档（本地开发协作笔记，不进仓库）
+docs/
+
 # Typecho 运行时（主题目录通常用不到，按需保留）
 uploads/
 cache/
