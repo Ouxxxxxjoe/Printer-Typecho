@@ -1283,6 +1283,102 @@ html.dark .post-title a:hover::after {
   text-spacing-trim: normal;
 }
 
+/* ============================================
+   正文 Markdown 渲染：标题层级 / 列表 / 分隔线 / 删除线
+   同时作用于 .post-content 和 .post-excerpt，保持一致
+   ============================================ */
+
+/* 标题层级：字号阶梯（h1 不在此定义，文章大标题已用 .paper-title）
+   出版式间距：margin-top 大于 margin-bottom，标题与上方内容留呼吸，与下方段落贴近 */
+.post-excerpt h2,
+.post-content h2 {
+  font-size: clamp(20px, 3vw, 24px);
+  line-height: 1.3;
+  margin: 1.8em 0 0.6em;
+  font-weight: 700;
+}
+.post-excerpt h3,
+.post-content h3 {
+  font-size: clamp(17px, 2.5vw, 20px);
+  line-height: 1.35;
+  margin: 1.6em 0 0.5em;
+  font-weight: 700;
+}
+.post-excerpt h4,
+.post-content h4 {
+  font-size: 16px;
+  line-height: 1.4;
+  margin: 1.4em 0 0.4em;
+  font-weight: 600;
+}
+.post-excerpt h5,
+.post-content h5 {
+  font-size: 15px;
+  margin: 1.2em 0 0.4em;
+  font-weight: 600;
+}
+.post-excerpt h6,
+.post-content h6 {
+  font-size: 14px;
+  margin: 1.1em 0 0.3em;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* h2/h3 短下划线装饰：打印纸章节分隔标记 */
+.post-excerpt h2::after,
+.post-content h2::after,
+.post-excerpt h3::after,
+.post-content h3::after {
+  content: "";
+  display: block;
+  width: 32px;
+  height: 3px;
+  margin-top: 8px;
+  background: var(--accent);
+  border-radius: var(--radius-full);
+}
+
+/* 列表：统一缩进 + accent 色 marker */
+.post-excerpt ul,
+.post-content ul,
+.post-excerpt ol,
+.post-content ol {
+  margin: 0 0 1em;
+  padding-left: 1.6em;
+}
+.post-excerpt li,
+.post-content li {
+  margin: 0.25em 0;
+}
+.post-excerpt li::marker,
+.post-content li::marker {
+  color: var(--accent);
+}
+
+/* 分隔线：圆点撕纸线（呼应打印纸打孔撕纸线）*/
+.post-excerpt hr,
+.post-content hr {
+  border: none;
+  margin: 2em 0;
+  text-align: center;
+  line-height: 0;
+}
+.post-excerpt hr::after,
+.post-content hr::after {
+  content: "● ● ●";
+  letter-spacing: 0.8em;
+  color: var(--line);
+  font-size: 0.6em;
+}
+
+/* 删除线：颜色弱化 */
+.post-excerpt del,
+.post-content del {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
 .post-excerpt blockquote,
 .post-content blockquote {
   margin: var(--space-4) 0;
@@ -2930,6 +3026,85 @@ button:focus-visible:not(.theme-toggle):not(.header-search-btn):not(.back-to-top
   .menu a:focus-visible {
     box-shadow: 0 0 0 4px oklch(75% 0.12 145 / 0.3);
   }
+}
+
+/* ============================================
+   文章 TOC 目录：视口右侧浮动（≥1220px 显示）
+   由 footer.php JS 扫描 .post-content 内 h2/h3 动态生成
+   零布局侵入：正文宽度不变，中小屏优雅隐藏
+   ============================================ */
+.post-toc {
+  position: fixed;
+  top: 50%;
+  right: 32px;
+  transform: translateY(-50%);
+  width: 200px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 16px 20px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  font-size: 13px;
+  line-height: 1.7;
+  z-index: 50;
+  /* 默认隐藏，由 media query + JS 的 has-items 类控制显示 */
+  display: none;
+}
+
+@media (min-width: 1220px) {
+  .post-toc.has-items {
+    display: block;
+  }
+}
+
+.post-toc-title {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 0 0 10px;
+}
+
+.post-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.post-toc-list li {
+  margin: 0;
+}
+
+.post-toc-list a {
+  display: block;
+  padding: 3px 0 3px 12px;
+  color: var(--muted);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  transition:
+    color var(--t-quick) var(--paper-soft),
+    border-color var(--t-quick) var(--paper-soft);
+}
+
+/* h3 层级缩进，字号略小 */
+.post-toc-list .toc-level-3 a {
+  padding-left: 24px;
+  font-size: 12px;
+}
+
+.post-toc-list a:hover {
+  color: var(--ink);
+  border-left-color: var(--line);
+}
+
+/* 当前章节高亮 */
+.post-toc-list a.toc-active {
+  color: var(--accent);
+  font-weight: 600;
+  border-left-color: var(--accent);
 }
 
 /* ============================================

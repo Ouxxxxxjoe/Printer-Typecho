@@ -313,6 +313,88 @@
       });
     })();
   </script>
+  <script>
+    // TOC 目录 + 标题锚点 + 滚动高亮
+    (function () {
+      var content = document.querySelector('article .post-content');
+      if (!content) return;
+
+      var headings = content.querySelectorAll('h2, h3');
+      if (headings.length < 2) return; // 少于 2 个标题不生成 TOC
+
+      // 1. 给标题生成 slug + id（中文保留，URL 安全转写）
+      var slugSet = {};
+      headings.forEach(function (h) {
+        var slug = makeSlug(h.textContent);
+        if (slugSet[slug]) {
+          slug = slug + '-' + (++slugSet[slug]);
+        } else {
+          slugSet[slug] = 1;
+        }
+        h.id = slug;
+      });
+
+      // 2. 构建 TOC DOM
+      var toc = document.createElement('nav');
+      toc.className = 'post-toc has-items';
+      toc.setAttribute('aria-label', '文章目录');
+      var html = '<p class="post-toc-title">目录</p><ul class="post-toc-list">';
+      headings.forEach(function (h) {
+        var level = h.tagName.toLowerCase(); // h2 / h3
+        html += '<li class="toc-level-' + level + '">' +
+                '<a href="#' + h.id + '" data-toc-target="' + h.id + '">' +
+                escapeHtml(h.textContent.trim()) + '</a></li>';
+      });
+      html += '</ul>';
+      toc.innerHTML = html;
+      document.body.appendChild(toc);
+
+      // 3. 滚动高亮当前章节（IntersectionObserver，复用入场动画机制）
+      if ('IntersectionObserver' in window) {
+        var links = toc.querySelectorAll('a');
+        var linkByHref = {};
+        links.forEach(function (a) {
+          linkByHref[a.getAttribute('data-toc-target')] = a;
+        });
+
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (!entry.isIntersecting) return;
+            links.forEach(function (a) { a.classList.remove('toc-active'); });
+            var active = linkByHref[entry.target.id];
+            if (active) active.classList.add('toc-active');
+          });
+        }, { rootMargin: '-20% 0px -60% 0px' }); // 标题进入视口上 1/5 区域（20%~40%）时高亮
+
+        headings.forEach(function (h) { io.observe(h); });
+      }
+
+      // 4. 平滑滚动（点击 TOC 链接）
+      toc.addEventListener('click', function (e) {
+        if (e.target.tagName !== 'A') return;
+        e.preventDefault();
+        var target = document.getElementById(e.target.getAttribute('data-toc-target'));
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          history.replaceState(null, '', '#' + target.id);
+        }
+      });
+
+      // --- 工具函数 ---
+      function makeSlug(text) {
+        return (text || '').trim()
+          .toLowerCase()
+          .replace(/[^\w\u4e00-\u9fa5\s-]/g, '') // 保留中英文、数字、空格、连字符
+          .replace(/[\s_]+/g, '-')               // 空格/下划线转连字符
+          .replace(/-+/g, '-')                    // 合并连续连字符
+          .replace(/^-|-$/g, '');                 // 去首尾连字符
+      }
+      function escapeHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+      }
+    })();
+  </script>
   <?php $this->footer(); ?>
 </body>
 </html>
