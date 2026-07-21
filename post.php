@@ -17,7 +17,7 @@
   </p>
   <h1 class="paper-title"><?php $this->title(); ?></h1>
   <div class="post-content">
-    <?php $this->content(); ?>
+    <?php printerPaperRenderContent($this); ?>
   </div>
 </article>
 

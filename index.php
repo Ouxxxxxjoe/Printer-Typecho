@@ -11,14 +11,14 @@ if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 <?php $this->need('header.php'); ?>
 
 <?php if (!$this->is('index')): ?>
-  <h2 class="paper-title">
+  <h1 class="paper-title">
     <?php $this->archiveTitle(array(
       'category'  => _t('%s'),
       'search'    => _t('搜索：%s'),
       'tag'       => _t('标签：%s'),
       'author'    => _t('%s')
     ), '', ''); ?>
-  </h2>
+  </h1>
 <?php endif; ?>
 <p class="paper-subtitle"><?php _e('共 %d 篇内容', $this->getTotal()); ?></p>
 

@@ -351,7 +351,7 @@ a {
     inset 0 1px 2px rgba(255, 255, 255, 0.4);
 }
 
-.brand-text h1 {
+.brand-text .brand-title {
   margin: 0;
   font-size: clamp(16px, 2.5vw, 20px);
   letter-spacing: 0.25em;
@@ -986,7 +986,8 @@ html.dark .paper::before {
   background-clip: text;
 }
 
-.paper>h2.paper-title {
+.paper>h2.paper-title,
+.paper>h1.paper-title {
   font-size: clamp(20px, 3vw, 26px);
   letter-spacing: 0.08em;
   background: none;
@@ -2187,7 +2188,8 @@ article .post-content img {
     font-size: 30px;
   }
 
-  .paper>h2.paper-title {
+  .paper>h2.paper-title,
+  .paper>h1.paper-title {
     font-size: 20px;
   }
 
@@ -2223,7 +2225,7 @@ article .post-content img {
     height: 32px;
   }
 
-  .brand-text h1 {
+  .brand-text .brand-title {
     font-size: 16px;
     letter-spacing: 0.2em;
   }
@@ -2300,7 +2302,7 @@ article .post-content img {
     height: 36px;
   }
 
-  .brand-text h1 {
+  .brand-text .brand-title {
     font-size: 18px;
     letter-spacing: 0.24em;
   }
@@ -2485,7 +2487,8 @@ article .post-content img {
     line-height: 1.2;
   }
 
-  .paper > h2.paper-title {
+  .paper > h2.paper-title,
+  .paper > h1.paper-title {
     font-size: 18px;
   }
 
@@ -2739,7 +2742,7 @@ article .post-content img {
     height: 32px;
   }
 
-  .brand-text h1 {
+  .brand-text .brand-title {
     font-size: 16px;
   }
 

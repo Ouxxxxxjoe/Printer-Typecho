@@ -143,7 +143,23 @@
             <span class="brand-mark"></span>
           <?php endif; ?>
           <span class="brand-text">
-            <h1><?php echo $this->options->logoText ? htmlspecialchars($this->options->logoText, ENT_QUOTES, 'UTF-8') : $this->options->title(); ?></h1>
+            <?php
+              // SEO：仅首页保留站点名作为 H1；详情页（post/page/404）由各自的 .paper-title 充当唯一 H1，
+              // 避免每页出现多个 <h1>（Bing 站长平台收录建议 / Google 语义化结构最佳实践）。
+              if ($this->options->logoText) {
+                $printerBrandText = htmlspecialchars($this->options->logoText, ENT_QUOTES, 'UTF-8');
+              } else {
+                ob_start();
+                $this->options->title();
+                $printerBrandText = trim(ob_get_clean());
+              }
+              $printerIsHome = $this->is('index');
+            ?>
+            <?php if ($printerIsHome): ?>
+              <h1 class="brand-title"><?php echo $printerBrandText; ?></h1>
+            <?php else: ?>
+              <p class="brand-title"><?php echo $printerBrandText; ?></p>
+            <?php endif; ?>
             <p><?php echo $this->options->subTitle ? htmlspecialchars($this->options->subTitle, ENT_QUOTES, 'UTF-8') : $this->options->description(); ?></p>
           </span>
         </a>

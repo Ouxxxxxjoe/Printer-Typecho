@@ -1,11 +1,12 @@
 <?php
 if (!defined('__TYPECHO_ROOT_DIR__')) exit;
 
-// 子系统拆分：访问统计 / LLM 可读内容 / Schema 结构化数据
+// 子系统拆分：访问统计 / LLM 可读内容 / Schema 结构化数据 / 正文 H1 降级
 // 加载发生在所有模板之前，子文件中的函数在模板调用时已就绪。
 require_once __DIR__ . '/inc/visit-stats.php';
 require_once __DIR__ . '/inc/llm.php';
 require_once __DIR__ . '/inc/schema.php';
+require_once __DIR__ . '/inc/content-h1-demotion.php';
 
 // Typecho 类声明（用于 IDE 智能提示）
 if (false) {
