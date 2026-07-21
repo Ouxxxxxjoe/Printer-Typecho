@@ -1,14 +1,20 @@
-name: Release
+name: Release Plugin
 
-# 手动触发：在 Actions 页面点 Run workflow，输入版本号（如 1.5）
-# 打包主题 Printer-{ver}.zip 和插件 Printerllm-{ver}.zip，并创建 GitHub Release
+# 手动触发：在 Actions 页面点 Run workflow，输入插件版本号（如 1.0.1）
+# 仅打包插件 Printerllm-{ver}.zip，tag 加 printerllm- 前缀（如 printerllm-1.0.1）
+# 与主题发版完全解耦——主题更新不会触发插件发版，避免误导用户
+#
+# 发版前请同步修改 Printerllm/Plugin.php 的 @version 注释，保证三处版本号一致：
+#   1. Plugin.php 内 @version
+#   2. 此处输入的 version
+#   3. 产出的 tag（printerllm-{version}）与 zip 文件名（Printerllm-{version}.zip）
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 版本号（如 1.5，用作 tag 和文件名）
+        description: 插件版本号（如 1.0.1，tag 会自动加 printerllm- 前缀）
         required: true
-        default: '1.5'
+        default: '1.0.1'
       prerelease:
         description: 是否为预发布版本
         type: boolean
@@ -29,29 +35,14 @@ jobs:
         id: ver
         run: |
           VER="${{ github.event.inputs.version }}"
-          # 仅允许数字和点号，防止注入和怪异文件名
+          # 仅允许数字和点号，防止注入和怪异文件名（tag 前缀 printerllm- 由 workflow 自动拼接）
           if ! echo "$VER" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
-            echo "::error::版本号只能包含数字和点号（如 1.5、2.0.1），收到：$VER"
+            echo "::error::版本号只能包含数字和点号（如 1.0.1、1.1.0），收到：$VER"
             exit 1
           fi
           echo "version=$VER" >> "$GITHUB_OUTPUT"
-          echo "校验通过：$VER"
-
-      - name: 打包主题 Printer-${{ steps.ver.outputs.version }}.zip
-        run: |
-          mkdir -p dist/Printer
-          # 复制主题本体文件（排除插件、开发文档、构建产物）
-          # 主题文件
-          cp -r *.php css inc screenshot.png README.md LICENSE dist/Printer/ 2>/dev/null || true
-          # 删除非主题文件：LLM 旧入口保留（向后兼容），CDN 指南和插件不进主题包
-          rm -f dist/Printer/CDN部署指南.md 2>/dev/null || true
-          # 确认主题核心文件齐全
-          test -f dist/Printer/index.php || { echo "::error::缺少 index.php，主题打包失败"; exit 1; }
-          test -f dist/Printer/functions.php || { echo "::error::缺少 functions.php，主题打包失败"; exit 1; }
-          # 打包（zip 内层为 Printer/，符合 Typecho 主题目录要求）
-          cd dist && zip -r "Printer-${{ steps.ver.outputs.version }}.zip" Printer -x '*.DS_Store'
-          echo "主题包内容："
-          unzip -l "Printer-${{ steps.ver.outputs.version }}.zip" | head -30
+          echo "tag=printerllm-$VER" >> "$GITHUB_OUTPUT"
+          echo "校验通过：版本号 $VER，tag printerllm-$VER"
 
       - name: 打包插件 Printerllm-${{ steps.ver.outputs.version }}.zip
         run: |
@@ -69,10 +60,9 @@ jobs:
       - name: 创建 tag 与 Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.ver.outputs.version }}
-          name: ${{ steps.ver.outputs.version }}
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: ${{ steps.ver.outputs.tag }}
           generate_release_notes: true  # 自动从 commits 生成变更说明
           prerelease: ${{ github.event.inputs.prerelease }}
           files: |
-            dist/Printer-${{ steps.ver.outputs.version }}.zip
             dist/Printerllm-${{ steps.ver.outputs.version }}.zip

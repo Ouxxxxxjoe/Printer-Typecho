@@ -1,0 +1,65 @@
+name: Release Theme
+
+# 手动触发：在 Actions 页面点 Run workflow，输入版本号（如 1.6.2）
+# 仅打包主题 Printer-{ver}.zip，并创建 GitHub Release（tag 为纯数字版本号）
+# 插件发版请使用 Release Plugin workflow，两个产物版本号相互独立
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 主题版本号（如 1.6.2，用作 tag 和文件名）
+        required: true
+        default: '1.6.2'
+      prerelease:
+        description: 是否为预发布版本
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: write  # 创建 tag 和 release 需要
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 校验版本号格式
+        id: ver
+        run: |
+          VER="${{ github.event.inputs.version }}"
+          # 仅允许数字和点号，防止注入和怪异文件名
+          if ! echo "$VER" | grep -Eq '^[0-9]+(\.[0-9]+)*$'; then
+            echo "::error::版本号只能包含数字和点号（如 1.6.2、2.0.1），收到：$VER"
+            exit 1
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+          echo "校验通过：$VER"
+
+      - name: 打包主题 Printer-${{ steps.ver.outputs.version }}.zip
+        run: |
+          mkdir -p dist/Printer
+          # 复制主题本体文件（排除插件、开发文档、构建产物）
+          # 主题文件
+          cp -r *.php css inc screenshot.png README.md LICENSE dist/Printer/ 2>/dev/null || true
+          # 删除非主题文件：CDN 指南和插件不进主题包
+          rm -f dist/Printer/CDN部署指南.md 2>/dev/null || true
+          # 确认主题核心文件齐全
+          test -f dist/Printer/index.php || { echo "::error::缺少 index.php，主题打包失败"; exit 1; }
+          test -f dist/Printer/functions.php || { echo "::error::缺少 functions.php，主题打包失败"; exit 1; }
+          # 打包（zip 内层为 Printer/，符合 Typecho 主题目录要求）
+          cd dist && zip -r "Printer-${{ steps.ver.outputs.version }}.zip" Printer -x '*.DS_Store'
+          echo "主题包内容："
+          unzip -l "Printer-${{ steps.ver.outputs.version }}.zip" | head -30
+
+      - name: 创建 tag 与 Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.version }}
+          name: ${{ steps.ver.outputs.version }}
+          generate_release_notes: true  # 自动从 commits 生成变更说明
+          prerelease: ${{ github.event.inputs.prerelease }}
+          files: |
+            dist/Printer-${{ steps.ver.outputs.version }}.zip
